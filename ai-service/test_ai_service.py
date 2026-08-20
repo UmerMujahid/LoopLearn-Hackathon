@@ -13,7 +13,7 @@ from food_matcher import FoodMatcher
 from waste_analyzer import WasteAnalyzer
 from sustainability_calculator import SustainabilityCalculator
 from rag_engine import rag_engine
-from agent_matcher import matching_agent
+from agent_matcher import matching_agent, find_available_food_tool, find_organizations_tool
 
 
 def test_python_oop_modules():
@@ -70,32 +70,38 @@ def test_python_oop_modules():
     print(f"[PASS] SustainabilityCalculator: 100 kg food = {co2} kg CO2e, {meals} meals saved.")
 
 
-def test_rag_engine():
-    print("\n--- 2. Testing RAG Knowledge Base Retrieval ---")
-    assert len(rag_engine.chunks) > 0, "Knowledge base should have indexed chunks."
-    print(f"[PASS] RAGEngine has {len(rag_engine.chunks)} indexed chunks.")
+def test_langchain_rag_engine():
+    print("\n--- 2. Testing LangChain RAG Knowledge Base Retrieval & Splitters ---")
+    assert len(rag_engine.documents) > 0, "LangChain RAGEngine should have indexed Document chunks."
+    print(f"[PASS] LangChain RAGEngine has {len(rag_engine.documents)} indexed Document chunks.")
 
     retrieved = rag_engine.retrieve("What temperature should cold food be held at?", top_k=2)
-    assert len(retrieved) > 0, "Should retrieve relevant chunks."
-    print(f"[PASS] Retrieved chunk: '{retrieved[0]['title']}' from {retrieved[0]['source']}")
+    assert len(retrieved) > 0, "Should retrieve relevant LangChain Document chunks."
+    print(f"[PASS] Retrieved Document: '{retrieved[0].metadata.get('title')}' ({len(retrieved[0].page_content)} chars)")
 
 
-def test_agent_matcher():
-    print("\n--- 3. Testing Autonomous Agentic Matching Loop ---")
-    listings = matching_agent.find_available_food()
-    orgs = matching_agent.find_organizations()
-    assert len(listings) > 0, "Should find available food surplus."
-    assert len(orgs) > 0, "Should find verified organizations."
-    print(f"[PASS] Agent discovered {len(listings)} listings and {len(orgs)} organizations.")
+def test_langchain_agent_matcher():
+    print("\n--- 3. Testing LangChain Tools and Autonomous Agent Matching ---")
+    food_res = find_available_food_tool.invoke({"category": "all", "location": ""})
+    orgs_res = find_organizations_tool.invoke({"location": "", "verified_only": True})
+    assert len(food_res) > 10, "find_available_food_tool should return JSON array."
+    assert len(orgs_res) > 10, "find_organizations_tool should return JSON array."
+    print(f"[PASS] LangChain Tools: find_available_food_tool & find_organizations_tool executed.")
+
+    agent_result = matching_agent.run("Find 50 meals for downtown shelter")
+    assert agent_result["success"] is True
+    assert len(agent_result["actions"]) >= 3
+    assert len(agent_result["response"]) > 20
+    print(f"[PASS] LangChain Agent loop executed with {len(agent_result['actions'])} tool actions.")
 
 
 if __name__ == "__main__":
-    print("==============================================")
-    print("RUNNING FOODLOOP AI & PYTHON TEST SUITE")
-    print("==============================================")
+    print("==========================================================")
+    print("RUNNING FOODLOOP LANGCHAIN & PYTHON OOP TEST SUITE")
+    print("==========================================================")
     test_python_oop_modules()
-    test_rag_engine()
-    test_agent_matcher()
-    print("\n==============================================")
-    print("[PASS] ALL AI & PYTHON UNIT TESTS PASSED!")
-    print("==============================================")
+    test_langchain_rag_engine()
+    test_langchain_agent_matcher()
+    print("\n==========================================================")
+    print("[PASS] ALL LANGCHAIN & PYTHON TESTS PASSED!")
+    print("==========================================================")
