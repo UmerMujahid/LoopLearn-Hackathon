@@ -32,7 +32,13 @@ export const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const role = (authRole || 'provider') as UserRole;
+  const role: UserRole = location.pathname.startsWith('/admin')
+    ? 'admin'
+    : location.pathname.startsWith('/organization')
+    ? 'organization'
+    : location.pathname.startsWith('/provider')
+    ? 'provider'
+    : (authRole as UserRole) || 'provider';
 
   const isLandingPage = location.pathname === '/';
   const isAuthRoute =
