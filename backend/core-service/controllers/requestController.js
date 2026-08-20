@@ -43,12 +43,23 @@ const recordSustainabilityMetrics = async (providerId, organizationId, quantity,
     );
 };
 
+const User = require('../models/User');
+
 // @desc    Create a claim request for food listing
 // @route   POST /requests
-// @access  Organization
+// @access  Organization (verified only)
 const createRequest = async (req, res) => {
     try {
         const { foodListingId, requestedQuantity, message } = req.body;
+
+        // Verify that the requesting organization is verified
+        const orgUser = await User.findById(req.user.id);
+        if (!orgUser || orgUser.role !== 'organization') {
+            return res.status(403).json({ message: 'Only organizations can create claim requests' });
+        }
+        if (!orgUser.isVerified) {
+            return res.status(403).json({ message: 'Your organization must be verified by admin before claiming food. Please wait for verification.' });
+        }
 
         const listing = await FoodListing.findById(foodListingId);
         if (!listing) {
@@ -214,12 +225,17 @@ const markCollected = async (req, res) => {
         await listing.save();
 
         // Update CO2 and waste reduction analytics
-        await recordSustainabilityMetrics(
-            listing.providerId,
-            request.organizationId,
-            listing.quantity,
-            listing.unit
-        );
+        try {
+            await recordSustainabilityMetrics(
+                listing.providerId,
+                request.organizationId,
+                listing.quantity,
+                listing.unit
+            );
+        } catch (metricsError) {
+            // Log but don't fail the request — collection is already recorded
+            console.error('[markCollected] Failed to update sustainability metrics:', metricsError.message);
+        }
 
         return res.status(200).json({
             message: 'Food marked as collected and sustainability stats updated',

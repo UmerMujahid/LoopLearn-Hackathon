@@ -7,6 +7,7 @@ const cors = require('cors');
 const authRouter = require('./routes/authRoutes');
 const adminRouter = require('./routes/adminRoutes');
 const { verifyToken, authorize } = require('./middleware/auth');
+const globalErrorHandler = require('./middleware/errorHandler');
 
 
 const app = express();
@@ -40,6 +41,9 @@ app.use("/health", (req, res) => {
         message: "auth-service backend is working fine."
     })
 })
+
+// Global error handler (must be registered AFTER all routes)
+app.use(globalErrorHandler);
 
 const startServer = async () => {
     try {

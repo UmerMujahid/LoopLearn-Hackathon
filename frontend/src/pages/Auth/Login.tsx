@@ -1,65 +1,166 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff, FiPackage, FiUsers, FiShield } from 'react-icons/fi';
 import { BoxAvatarOverlay } from '../../components/common/BoxAvatarOverlay';
+import { FoodLoopLogo } from '../../components/common/FoodLoopLogo';
+import { useAuth } from '../../context/AuthContext';
+
+type PortalRole = 'provider' | 'organization' | 'admin';
+
+interface Portal {
+  role: PortalRole;
+  label: string;
+  sublabel: string;
+  icon: React.ReactNode;
+  avatar: 'donor' | 'organization' | 'admin';
+  path: string;
+  accentColor: string;
+  activeBg: string;
+  activeBorder: string;
+}
+
+const portals: Portal[] = [
+  {
+    role: 'provider',
+    label: 'Food Donor',
+    sublabel: 'Restaurant / Bakery / Market',
+    icon: <FiPackage className="text-base" />,
+    avatar: 'donor',
+    path: '/provider',
+    accentColor: '#059669',
+    activeBg: 'rgba(5,150,105,0.08)',
+    activeBorder: 'rgba(5,150,105,0.35)',
+  },
+  {
+    role: 'organization',
+    label: 'Community Org',
+    sublabel: 'Shelter / Food Bank / NGO',
+    icon: <FiUsers className="text-base" />,
+    avatar: 'organization',
+    path: '/organization',
+    accentColor: '#d97706',
+    activeBg: 'rgba(217,119,6,0.08)',
+    activeBorder: 'rgba(217,119,6,0.35)',
+  },
+  {
+    role: 'admin',
+    label: 'Admin Portal',
+    sublabel: 'Municipal / Platform Admin',
+    icon: <FiShield className="text-base" />,
+    avatar: 'admin',
+    path: '/admin',
+    accentColor: '#4f46e5',
+    activeBg: 'rgba(79,70,229,0.08)',
+    activeBorder: 'rgba(79,70,229,0.35)',
+  },
+];
 
 const Login: React.FC = () => {
   const { role: urlRole } = useParams<{ role?: string }>();
   const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const initialRole: PortalRole =
+    (urlRole as PortalRole | undefined) &&
+    ['provider', 'organization', 'admin'].includes(urlRole!)
+      ? (urlRole as PortalRole)
+      : 'provider';
+
+  const [selectedPortal, setSelectedPortal] = useState<PortalRole>(initialRole);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const portal = portals.find((p) => p.role === selectedPortal)!;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
-    // Simulate login - in production, call auth API
-    setTimeout(() => {
+    try {
+      await login(email, password);
+      navigate(`/${selectedPortal}`);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Invalid email or password. Please try again.';
+      setError(msg);
+    } finally {
       setIsLoading(false);
-      const role = urlRole || 'provider';
-      localStorage.setItem('foodloop_token', 'demo_token');
-      localStorage.setItem('foodloop_user', JSON.stringify({
-        name: 'Ahmed Khan',
-        email,
-        role,
-        avatar: role === 'provider' ? '🥗' : role === 'organization' ? '🍲' : '🛡️',
-      }));
-      navigate(`/${role}`);
-    }, 800);
+    }
   };
 
   return (
     <div className="w-full max-w-md mx-auto animate-scale-in">
-      <div className="bg-white dark:bg-slate-900 border-2 border-emerald-900/20 dark:border-emerald-700/30 rounded-3xl p-8 shadow-soft">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <BoxAvatarOverlay role="donor" size="lg" />
-          </div>
-          <h1 className="font-display font-black text-2xl text-slate-900 dark:text-white">
+      <div
+        className="rounded-3xl p-8"
+        style={{
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(6,61,39,0.12)',
+          boxShadow: '0 24px 48px rgba(0,0,0,0.08)',
+        }}
+      >
+        {/* Brand Header */}
+        <div className="flex flex-col items-center gap-2 mb-7">
+          <FoodLoopLogo size={44} />
+          <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight">
             Welcome Back
           </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Sign in to your FoodLoop account
+          <p className="text-xs text-slate-500 font-mono tracking-wide uppercase">
+            Select your portal to continue
           </p>
         </div>
 
-        {/* Role indicator */}
-        {urlRole && (
-          <div className="mb-5 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-center">
-            <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
-              Signing in as: <span className="capitalize">{urlRole}</span>
-            </span>
+        {/* Portal Tabs */}
+        <div
+          className="grid grid-cols-3 gap-2 mb-6 p-1 rounded-2xl"
+          style={{ background: 'rgba(6,61,39,0.04)', border: '1px solid rgba(6,61,39,0.08)' }}
+        >
+          {portals.map((p) => (
+            <button
+              key={p.role}
+              type="button"
+              onClick={() => setSelectedPortal(p.role)}
+              className="flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-xl transition-all"
+              style={
+                selectedPortal === p.role
+                  ? {
+                      background: p.activeBg,
+                      border: `1px solid ${p.activeBorder}`,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                    }
+                  : { border: '1px solid transparent' }
+              }
+            >
+              <BoxAvatarOverlay role={p.avatar} size="sm" />
+              <span
+                className="font-display font-bold text-[10px] text-center leading-tight"
+                style={{ color: selectedPortal === p.role ? p.accentColor : '#64748b' }}
+              >
+                {p.label}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Selected portal label */}
+        <div
+          className="flex items-center gap-2 px-3 py-2 rounded-xl mb-5"
+          style={{ background: portal.activeBg, border: `1px solid ${portal.activeBorder}` }}
+        >
+          <span style={{ color: portal.accentColor }}>{portal.icon}</span>
+          <div>
+            <p className="font-display font-bold text-xs" style={{ color: portal.accentColor }}>
+              {portal.label}
+            </p>
+            <p className="text-[10px] text-slate-500">{portal.sublabel}</p>
           </div>
-        )}
+        </div>
 
         {/* Error */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-400">
+          <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
             {error}
           </div>
         )}
@@ -67,9 +168,7 @@ const Login: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              Email Address
-            </label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
             <div className="relative">
               <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -78,16 +177,20 @@ const Login: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-emerald-900/15 dark:border-emerald-700/30 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-sm"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-slate-900 placeholder-slate-400 outline-none transition-all"
+                style={{
+                  background: 'rgba(6,61,39,0.04)',
+                  border: '1.5px solid rgba(6,61,39,0.14)',
+                }}
+                onFocus={(e) => { e.target.style.borderColor = portal.accentColor; e.target.style.boxShadow = `0 0 0 3px ${portal.activeBg}`; }}
+                onBlur={(e) => { e.target.style.borderColor = 'rgba(6,61,39,0.14)'; e.target.style.boxShadow = 'none'; }}
               />
             </div>
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              Password
-            </label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
             <div className="relative">
               <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -96,7 +199,13 @@ const Login: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl border-2 border-emerald-900/15 dark:border-emerald-700/30 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-sm"
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm text-slate-900 placeholder-slate-400 outline-none transition-all"
+                style={{
+                  background: 'rgba(6,61,39,0.04)',
+                  border: '1.5px solid rgba(6,61,39,0.14)',
+                }}
+                onFocus={(e) => { e.target.style.borderColor = portal.accentColor; e.target.style.boxShadow = `0 0 0 3px ${portal.activeBg}`; }}
+                onBlur={(e) => { e.target.style.borderColor = 'rgba(6,61,39,0.14)'; e.target.style.boxShadow = 'none'; }}
               />
               <button
                 type="button"
@@ -112,71 +221,31 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:bg-emerald-400 text-white font-display font-bold text-sm rounded-xl border-2 border-emerald-900 shadow-pop-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+            className="w-full py-3 text-white font-display font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+            style={{
+              background: `linear-gradient(135deg, ${portal.accentColor}, ${portal.accentColor}dd)`,
+              boxShadow: `0 4px 12px ${portal.activeBg}`,
+              opacity: isLoading ? 0.6 : 1,
+            }}
           >
             {isLoading ? (
-              <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <span>Sign In</span>
+                <span>Sign In to {portal.label}</span>
                 <FiArrowRight />
               </>
             )}
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase">or</span>
-          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
-        </div>
-
-        {/* Switch to Register */}
-        <div className="text-center">
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Don&apos;t have an account?{' '}
-            <Link
-              to={urlRole ? `/register/${urlRole}` : '/register'}
-              className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline"
-            >
-              Create Account
-            </Link>
-          </p>
-        </div>
-
-        {/* Quick Role Login */}
-        <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">
-            Quick Demo Login
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { role: 'provider', label: 'Donor', avatar: 'donor' as const, path: '/provider' },
-              { role: 'organization', label: 'Org', avatar: 'organization' as const, path: '/organization' },
-              { role: 'admin', label: 'Admin', avatar: 'admin' as const, path: '/admin' },
-            ].map((item) => (
-              <button
-                key={item.role}
-                type="button"
-                onClick={() => {
-                  localStorage.setItem('foodloop_token', 'demo_token');
-                  localStorage.setItem('foodloop_user', JSON.stringify({
-                    name: `Demo ${item.label}`,
-                    email: `demo@${item.role}.foodloop.pk`,
-                    role: item.role,
-                    avatar: item.role === 'provider' ? '🥗' : item.role === 'organization' ? '🍲' : '🛡️',
-                  }));
-                  navigate(item.path);
-                }}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all text-xs"
-              >
-                <BoxAvatarOverlay role={item.avatar} size="sm" />
-                <span className="font-semibold text-slate-700 dark:text-slate-300">{item.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Register link */}
+        <p className="text-center text-sm text-slate-500 mt-5">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="font-bold hover:underline" style={{ color: portal.accentColor }}>
+            Create Account
+          </Link>
+        </p>
       </div>
     </div>
   );

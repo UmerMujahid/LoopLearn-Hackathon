@@ -1,9 +1,67 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { BoxAvatarOverlay } from '../../components/common/BoxAvatarOverlay';
+import { statsService } from '../../services/statsService';
+import { authService } from '../../services/authService';
+import { AdminStats, User } from '../../types';
+import { FiBarChart2, FiCheckCircle, FiUsers, FiDroplet } from 'react-icons/fi';
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
+  const [pendingOrgs, setPendingOrgs] = useState<User[]>([]);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setStatsLoading(true);
+    try {
+      const [stats, orgs] = await Promise.all([
+        statsService.getAdminStats(),
+        authService.getUsers('organization'),
+      ]);
+      setAdminStats(stats);
+      // Filter to only unverified organizations
+      setPendingOrgs(orgs.users.filter(u => !u.isVerified));
+    } catch (err) {
+      console.error('Failed to load admin data:', err);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  const handleVerify = async (userId: string) => {
+    setVerifyLoading(userId);
+    try {
+      await authService.verifyOrganization(userId);
+      // Remove from pending list
+      setPendingOrgs(prev => prev.filter(o => o.id !== userId));
+      // Refresh stats
+      const stats = await statsService.getAdminStats();
+      setAdminStats(stats);
+    } catch (err: any) {
+      console.error('Failed to verify:', err?.response?.data?.message);
+    } finally {
+      setVerifyLoading(null);
+    }
+  };
+
+  const totalListings = adminStats?.totalListings ?? 0;
+  const foodRescued = adminStats?.foodRescued ?? 0;
+  const activeOrgs = adminStats?.activeOrgs ?? 0;
+  const totalCo2 = adminStats?.totalCo2SavedKg ?? 0;
+
+  // Calculate SDG progress based on real metrics (simplified formula)
+  const sdgProgress = [
+    { goal: 'SDG 2: Zero Hunger', progress: Math.min(100, Math.round(foodRescued / 5)) },
+    { goal: 'SDG 11: Sustainable Cities', progress: Math.min(100, Math.round(activeOrgs * 2)) },
+    { goal: 'SDG 12: Responsible Consumption', progress: Math.min(100, Math.round(totalListings / 3)) },
+    { goal: 'SDG 13: Climate Action', progress: Math.min(100, Math.round(totalCo2 / 10)) },
+  ];
 
   return (
     <div className="space-y-8 animate-slide-up">
@@ -21,13 +79,13 @@ const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { icon: '📊', label: 'Total Listings', value: '342', color: 'emerald' },
-          { icon: '🍲', label: 'Meals Rescued', value: '48,500', color: 'amber' },
-          { icon: '🏛️', label: 'Verified Orgs', value: '85', color: 'indigo' },
-          { icon: '🌱', label: 'Citywide CO₂', value: '36.6 tonnes', color: 'emerald' },
+          { icon: <FiBarChart2 className="text-emerald-600 dark:text-emerald-400" size={24} />, label: 'Total Listings', value: statsLoading ? '...' : String(totalListings), color: 'emerald' },
+          { icon: <FiCheckCircle className="text-amber-600 dark:text-amber-400" size={24} />, label: 'Meals Rescued', value: statsLoading ? '...' : String(foodRescued), color: 'amber' },
+          { icon: <FiUsers className="text-indigo-600 dark:text-indigo-400" size={24} />, label: 'Verified Orgs', value: statsLoading ? '...' : String(activeOrgs), color: 'indigo' },
+          { icon: <FiDroplet className="text-emerald-600 dark:text-emerald-400" size={24} />, label: 'Citywide CO\u2082 Saved', value: statsLoading ? '...' : `${totalCo2} kg`, color: 'emerald' },
         ].map((stat, i) => (
           <div key={i} className="bg-white dark:bg-slate-900 border-2 border-emerald-900/15 dark:border-emerald-700/20 rounded-2xl p-5 shadow-soft">
-            <div className="text-3xl mb-2">{stat.icon}</div>
+            <div className="mb-2">{stat.icon}</div>
             <div className="font-display font-black text-2xl text-slate-900 dark:text-white">{stat.value}</div>
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{stat.label}</div>
           </div>
@@ -36,28 +94,36 @@ const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white dark:bg-slate-900 border-2 border-emerald-900/15 dark:border-emerald-700/20 rounded-2xl p-6 shadow-soft">
-          <h2 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-4">Pending Verifications</h2>
-          <div className="space-y-2">
-            {['Hope Kitchen Shelter', 'City Food Bank Inc.', 'Neighborhood Pantry'].map((org, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
-                <span className="text-sm text-slate-800 dark:text-slate-200">{org}</span>
-                <button className="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-lg border border-emerald-800 hover:bg-emerald-700 transition-colors">
-                  Verify
-                </button>
-              </div>
-            ))}
-          </div>
+          <h2 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-4">
+            Pending Verifications ({pendingOrgs.length})
+          </h2>
+          {pendingOrgs.length === 0 ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400">No pending organization verifications.</p>
+          ) : (
+            <div className="space-y-2">
+              {pendingOrgs.map((org) => (
+                <div key={org.id} className="flex items-center justify-between p-3 rounded-xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
+                  <div>
+                    <span className="text-sm text-slate-800 dark:text-slate-200">{org.organizationName || org.name}</span>
+                    <p className="text-[10px] text-slate-400">{org.email}</p>
+                  </div>
+                  <button
+                    onClick={() => handleVerify(org.id!)}
+                    disabled={verifyLoading === org.id}
+                    className="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-lg border border-emerald-800 hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                  >
+                    {verifyLoading === org.id ? '...' : 'Verify'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="bg-white dark:bg-slate-900 border-2 border-emerald-900/15 dark:border-emerald-700/20 rounded-2xl p-6 shadow-soft">
           <h2 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-4">UN SDG Progress</h2>
           <div className="space-y-3">
-            {[
-              { goal: 'SDG 2: Zero Hunger', progress: 72 },
-              { goal: 'SDG 11: Sustainable Cities', progress: 58 },
-              { goal: 'SDG 12: Responsible Consumption', progress: 81 },
-              { goal: 'SDG 13: Climate Action', progress: 65 },
-            ].map((item, i) => (
+            {sdgProgress.map((item, i) => (
               <div key={i}>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="font-semibold text-slate-700 dark:text-slate-300">{item.goal}</span>

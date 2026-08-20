@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FiUser, FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff, FiPhone, FiMapPin, FiBriefcase } from 'react-icons/fi';
-import { BoxAvatarOverlay } from '../../components/common/BoxAvatarOverlay';
+import { FiUser, FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff, FiPhone, FiMapPin, FiBriefcase, FiCoffee, FiUsers } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 
 type Role = 'provider' | 'organization' | 'admin';
 
 const Register: React.FC = () => {
   const { role: urlRole } = useParams<{ role?: string }>();
   const navigate = useNavigate();
+  const { register: registerUser } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,22 +25,42 @@ const Register: React.FC = () => {
     setError('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      localStorage.setItem('foodloop_token', 'demo_token');
-      localStorage.setItem('foodloop_user', JSON.stringify({
+    try {
+      await registerUser({
         name,
         email,
+        password,
         role,
-        avatar: role === 'provider' ? '🥗' : role === 'organization' ? '🍲' : '🛡️',
-      }));
+        organizationName: role === 'organization' ? organizationName : undefined,
+        address,
+        phone,
+      });
       navigate(`/${role}`);
-    }, 800);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Registration failed. Please try again.';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const roleOptions: { value: Role; label: string; desc: string; avatar: 'donor' | 'organization' | 'admin' }[] = [
-    { value: 'provider', label: 'Food Donor', desc: 'Restaurant, bakery, grocery store', avatar: 'donor' },
-    { value: 'organization', label: 'Community Organization', desc: 'Food bank, shelter, soup kitchen', avatar: 'organization' },
+  const roleOptions: { value: Role; label: string; desc: string; icon: React.ReactNode; activeBorder: string; activeBg: string }[] = [
+    {
+      value: 'provider',
+      label: 'Food Donor',
+      desc: 'Restaurant, bakery, grocery store',
+      icon: <FiCoffee size={20} className="text-emerald-600 dark:text-emerald-400" />,
+      activeBorder: 'border-emerald-500',
+      activeBg: 'bg-emerald-50 dark:bg-emerald-950/50',
+    },
+    {
+      value: 'organization',
+      label: 'Community Organization',
+      desc: 'Food bank, shelter, soup kitchen',
+      icon: <FiUsers size={20} className="text-amber-600 dark:text-amber-400" />,
+      activeBorder: 'border-amber-500',
+      activeBg: 'bg-amber-50 dark:bg-amber-950/50',
+    },
   ];
 
   return (
@@ -47,11 +68,6 @@ const Register: React.FC = () => {
       <div className="bg-white dark:bg-slate-900 border-2 border-emerald-900/20 dark:border-emerald-700/30 rounded-3xl p-8 shadow-soft">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex justify-center gap-3 mb-4">
-            <BoxAvatarOverlay role="chef" size="md" />
-            <BoxAvatarOverlay role="volunteer" size="md" />
-            <BoxAvatarOverlay role="family" size="md" />
-          </div>
           <h1 className="font-display font-black text-2xl text-slate-900 dark:text-white">
             Create Your Account
           </h1>
@@ -81,11 +97,11 @@ const Register: React.FC = () => {
                   onClick={() => setRole(opt.value)}
                   className={`p-3 rounded-xl border-2 text-left transition-all flex items-start gap-3 ${
                     role === opt.value
-                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 shadow-pop-sm'
+                      ? `${opt.activeBorder} ${opt.activeBg} shadow-pop-sm`
                       : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700'
                   }`}
                 >
-                  <BoxAvatarOverlay role={opt.avatar} size="sm" />
+                  <div className="mt-0.5">{opt.icon}</div>
                   <div>
                     <div className="font-display font-bold text-xs text-slate-900 dark:text-white">{opt.label}</div>
                     <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{opt.desc}</div>
@@ -116,7 +132,7 @@ const Register: React.FC = () => {
                 <FiBriefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text" value={organizationName} onChange={(e) => setOrganizationName(e.target.value)}
-                  placeholder="Hope Haven Shelter"
+                  placeholder="Edhi Foundation"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-emerald-900/15 dark:border-emerald-700/30 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-sm"
                 />
               </div>

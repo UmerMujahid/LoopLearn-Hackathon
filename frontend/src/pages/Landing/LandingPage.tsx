@@ -3,19 +3,26 @@ import { Link } from 'react-router-dom';
 import {
   FiArrowRight,
   FiCheckCircle,
+  FiClipboard,
   FiHeart,
   FiShield,
   FiUsers,
   FiPackage,
+  FiGlobe,
   FiTruck,
   FiMapPin,
   FiClock,
   FiTrendingUp,
   FiBarChart2,
   FiCpu,
+  FiAlertTriangle,
+  FiUserX,
+  FiCloud,
+  FiShoppingBag,
 } from 'react-icons/fi';
 import { TiltCard } from '../../components/common/TiltCard';
 import { BoxAvatarOverlay } from '../../components/common/BoxAvatarOverlay';
+import heroDonationImg from '../../assets/hero-donation.png';
 
 export const LandingPage: React.FC = () => {
   const [mealCount, setMealCount] = useState<number>(75);
@@ -29,7 +36,7 @@ export const LandingPage: React.FC = () => {
     <div className="flex flex-col gap-16 md:gap-24 pb-20 w-full" data-testid="landing-page-container">
 
       {/* ========== 1. HERO SECTION ========== */}
-      <section className="relative overflow-hidden rounded-3xl border-2 border-emerald-900/30 dark:border-emerald-700/40 bg-gradient-to-br from-emerald-900 via-emerald-950 to-[#041c10] text-white p-6 sm:p-10 md:p-16 shadow-pop-gold">
+      <section className="relative overflow-hidden rounded-3xl border-2 border-emerald-900/30 dark:border-emerald-700/40 bg-gradient-to-br from-emerald-900 via-emerald-950 to-[#041c10] text-white p-6 pt-4 sm:p-10 sm:pt-6 md:p-16 md:pt-8 shadow-pop-gold">
         <div className="absolute inset-0 opacity-10 bg-islamic-lattice pointer-events-none" />
         <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -37,11 +44,6 @@ export const LandingPage: React.FC = () => {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           {/* Left Content */}
           <div className="flex flex-col gap-6 text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/40 text-xs font-display font-bold tracking-wide w-fit">
-              <span>🌙</span>
-              <span>Zero Food Waste Movement</span>
-            </div>
-
             <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] text-white">
               Donate Food.{' '}
               <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-emerald-300 bg-clip-text text-transparent">
@@ -84,73 +86,26 @@ export const LandingPage: React.FC = () => {
               >
                 <span>Browse Community Relief</span>
               </Link>
-              <Link
-                to="/login"
-                className="px-5 py-3.5 bg-white/10 hover:bg-white/15 text-white font-display font-semibold text-sm rounded-xl border border-white/25 backdrop-blur-sm transition-all flex items-center justify-center gap-1.5"
-              >
-                Sign In
-              </Link>
             </div>
           </div>
 
-          {/* Right: Animated Food Rescue Visual (no images, pure CSS) */}
-          <div className="relative flex justify-center items-center">
-            <div className="relative w-full max-w-sm">
-              {/* Glowing backdrop */}
-              <div className="absolute -inset-6 bg-gradient-to-r from-amber-400/20 via-emerald-400/20 to-amber-500/20 rounded-3xl blur-2xl animate-pulse-glow" />
-
-              {/* Main card */}
-              <div className="relative border-2 border-amber-400/60 rounded-3xl overflow-hidden shadow-pop-gold bg-emerald-950/90 backdrop-blur-sm p-8">
-                <div className="text-center space-y-4">
-                  <div className="text-7xl animate-float-slow">🧺</div>
-                  <h3 className="font-display font-bold text-xl text-amber-200">Fresh Food Basket</h3>
-                  <p className="text-emerald-200/70 text-sm">Ready for rescue & redistribution</p>
-
-                  {/* Stats grid */}
-                  <div className="grid grid-cols-2 gap-3 pt-4">
-                    <div className="bg-emerald-900/60 rounded-xl p-3 border border-emerald-700/50">
-                      <div className="text-2xl mb-1">🍞</div>
-                      <div className="font-display font-bold text-amber-200 text-lg">1,420</div>
-                      <div className="text-[10px] text-emerald-300">Meals Rescued</div>
-                    </div>
-                    <div className="bg-emerald-900/60 rounded-xl p-3 border border-emerald-700/50">
-                      <div className="text-2xl mb-1">👨‍👩‍👧</div>
-                      <div className="font-display font-bold text-amber-200 text-lg">480</div>
-                      <div className="text-[10px] text-emerald-300">Families Fed</div>
-                    </div>
-                    <div className="bg-emerald-900/60 rounded-xl p-3 border border-emerald-700/50">
-                      <div className="text-2xl mb-1">🏪</div>
-                      <div className="font-display font-bold text-amber-200 text-lg">85+</div>
-                      <div className="text-[10px] text-emerald-300">Partner Stores</div>
-                    </div>
-                    <div className="bg-emerald-900/60 rounded-xl p-3 border border-emerald-700/50">
-                      <div className="text-2xl mb-1">🚐</div>
-                      <div className="font-display font-bold text-amber-200 text-lg">45 min</div>
-                      <div className="text-[10px] text-emerald-300">Avg Pickup Time</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Floating badges */}
-                <div className="absolute -top-2 -right-2 bg-emerald-800 text-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-600 animate-float-reverse shadow-sm">
-                  100% Halal Verified
-                </div>
-                <div className="absolute -bottom-2 -left-2 bg-amber-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-500 animate-float-slow shadow-sm">
-                  AI Matched
-                </div>
-              </div>
-
-              {/* Box avatars floating around */}
-              <div className="absolute -left-8 top-1/4 animate-float-slow">
-                <BoxAvatarOverlay role="chef" size="sm" />
-              </div>
-              <div className="absolute -right-8 top-1/3 animate-float-reverse">
-                <BoxAvatarOverlay role="volunteer" size="sm" />
-              </div>
-              <div className="absolute -bottom-4 left-1/4 animate-float-slow">
-                <BoxAvatarOverlay role="family" size="sm" />
-              </div>
-            </div>
+          {/* Right: Donation Illustration (transparent PNG, blends with hero theme) */}
+          <div className="relative flex justify-center items-center py-4">
+            {/* Soft ambient glow behind illustration to merge with theme */}
+            <div
+              className="absolute w-80 h-80 rounded-full pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse, rgba(251,191,36,0.14) 0%, rgba(16,185,129,0.10) 45%, transparent 72%)',
+                filter: 'blur(24px)',
+              }}
+            />
+            <img
+              src={heroDonationImg}
+              alt="Volunteers donating surplus food into community donation boxes"
+              className="relative w-full max-w-md lg:max-w-lg h-auto select-none pointer-events-none"
+              style={{ filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.35))' }}
+              draggable={false}
+            />
           </div>
         </div>
       </section>
@@ -158,7 +113,7 @@ export const LandingPage: React.FC = () => {
       {/* ========== 2. THE PROBLEM SECTION ========== */}
       <section id="problem" className="space-y-8">
         <div className="text-center max-w-2xl mx-auto">
-          <span className="text-xs font-display font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 px-3 py-1 rounded-full border border-rose-200 dark:border-rose-800">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 px-3 py-1 rounded-full border border-rose-200 dark:border-rose-800">
             The Crisis We Face
           </span>
           <h2 className="font-display font-black text-3xl sm:text-4xl text-slate-900 dark:text-white mt-3">
@@ -171,17 +126,23 @@ export const LandingPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="bg-white dark:bg-slate-900 border-2 border-rose-200 dark:border-rose-900/50 rounded-2xl p-6 shadow-soft text-center">
-            <div className="text-5xl mb-4">🗑️</div>
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950 border border-rose-200 dark:border-rose-800 flex items-center justify-center mx-auto mb-4">
+              <FiAlertTriangle className="text-2xl text-rose-500" />
+            </div>
             <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-2">1.3 Billion Tons</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400">of food is wasted globally each year, producing harmful methane gas in landfills.</p>
           </div>
           <div className="bg-white dark:bg-slate-900 border-2 border-amber-200 dark:border-amber-900/50 rounded-2xl p-6 shadow-soft text-center">
-            <div className="text-5xl mb-4">😔</div>
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 flex items-center justify-center mx-auto mb-4">
+              <FiUserX className="text-2xl text-amber-600 dark:text-amber-400" />
+            </div>
             <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-2">828 Million Hungry</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400">people worldwide face food insecurity while edible surplus gets destroyed daily.</p>
           </div>
           <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-soft text-center">
-            <div className="text-5xl mb-4">🏭</div>
+            <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mx-auto mb-4">
+              <FiCloud className="text-2xl text-slate-500 dark:text-slate-400" />
+            </div>
             <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-2">8-10% Global Emissions</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400">from food waste alone. If food waste were a country, it would be the 3rd largest emitter.</p>
           </div>
@@ -191,7 +152,7 @@ export const LandingPage: React.FC = () => {
       {/* ========== 3. THE ROAD: PROBLEM → SOLUTION ========== */}
       <section id="solution" className="space-y-8">
         <div className="text-center max-w-2xl mx-auto">
-          <span className="text-xs font-display font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
             The FoodLoop Journey
           </span>
           <h2 className="font-display font-black text-3xl sm:text-4xl text-slate-900 dark:text-white mt-3">
@@ -216,7 +177,7 @@ export const LandingPage: React.FC = () => {
               <div className="md:w-1/2 md:text-right md:pr-12 pl-14 md:pl-0">
                 <div className="bg-white dark:bg-slate-900 border-2 border-rose-200 dark:border-rose-900/40 rounded-2xl p-5 shadow-soft">
                   <div className="flex items-center gap-2 mb-2 md:justify-end">
-                    <span className="text-2xl">🏪</span>
+                    <FiShoppingBag className="text-rose-500" />
                     <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">Surplus Identified</h3>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400">Restaurants, bakeries, and grocery stores identify excess food before expiration.</p>
@@ -238,7 +199,7 @@ export const LandingPage: React.FC = () => {
               <div className="md:w-1/2 md:pl-12 pl-14">
                 <div className="bg-white dark:bg-slate-900 border-2 border-amber-200 dark:border-amber-900/40 rounded-2xl p-5 shadow-soft">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl">🤖</span>
+                    <FiCpu className="text-amber-500" />
                     <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">AI Smart Matching</h3>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400">FoodLoop AI matches surplus batches with nearby community organizations based on need, distance, and dietary requirements.</p>
@@ -251,7 +212,7 @@ export const LandingPage: React.FC = () => {
               <div className="md:w-1/2 md:text-right md:pr-12 pl-14 md:pl-0">
                 <div className="bg-white dark:bg-slate-900 border-2 border-emerald-200 dark:border-emerald-900/40 rounded-2xl p-5 shadow-soft">
                   <div className="flex items-center gap-2 mb-2 md:justify-end">
-                    <span className="text-2xl">✅</span>
+                    <FiCheckCircle className="text-emerald-500" />
                     <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">Claim & Verify</h3>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400">Organizations claim food batches. Safety checks verify temperature compliance and halal requirements.</p>
@@ -272,7 +233,7 @@ export const LandingPage: React.FC = () => {
               <div className="md:w-1/2 md:pl-12 pl-14">
                 <div className="bg-white dark:bg-slate-900 border-2 border-emerald-200 dark:border-emerald-900/40 rounded-2xl p-5 shadow-soft">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl">🚐</span>
+                    <FiTruck className="text-emerald-500" />
                     <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">Volunteer Fleet Pickup</h3>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400">Temperature-controlled volunteer vehicles pick up surplus within 45 minutes and deliver to verified shelters.</p>
@@ -285,7 +246,7 @@ export const LandingPage: React.FC = () => {
               <div className="md:w-1/2 md:text-right md:pr-12 pl-14 md:pl-0">
                 <div className="bg-gradient-to-br from-emerald-50 to-amber-50 dark:from-emerald-950/50 dark:to-amber-950/30 border-2 border-emerald-400 dark:border-emerald-600 rounded-2xl p-5 shadow-pop-sm">
                   <div className="flex items-center gap-2 mb-2 md:justify-end">
-                    <span className="text-2xl">🤲</span>
+                    <FiUsers className="text-emerald-600 dark:text-emerald-300" />
                     <h3 className="font-display font-bold text-base text-emerald-900 dark:text-emerald-200">Families Blessed with Rizq</h3>
                   </div>
                   <p className="text-xs text-emerald-800 dark:text-emerald-300">Verified food pantries and shelters receive warm meal batches. Community Barakah multiplies. Zero waste achieved.</p>
@@ -310,13 +271,13 @@ export const LandingPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
-            { icon: '📋', title: 'Benefits of Donations', desc: 'Tax-deductible ESG receipts, automated pickup in 60s, Good Samaritan legal shield, real-time Barakah tracking.', color: 'amber' },
-            { icon: '🥗', title: 'Donate Surplus Food', desc: 'Bakeries, restaurants & catering list surplus. Instant camera expiry analysis, portion tracking.', color: 'emerald' },
-            { icon: '🌱', title: 'Save Food & Earth', desc: 'Divert edible meals from landfills, prevent methane emission, align with UN SDGs.', color: 'emerald' },
-            { icon: '❤️', title: 'Save Lives & Dignity', desc: 'Verified food pantries & shelters receive meals. 1-Click claiming, respectful transparent aid.', color: 'rose' },
+            { icon: <FiClipboard className="text-xl" />, title: 'Benefits of Donations', desc: 'Tax-deductible ESG receipts, automated pickup in 60s, Good Samaritan legal shield, real-time Barakah tracking.', iconBg: 'bg-amber-50 dark:bg-amber-950', iconBorder: 'border-amber-200 dark:border-amber-800', iconColor: 'text-amber-600 dark:text-amber-400' },
+            { icon: <FiPackage className="text-xl" />, title: 'Donate Surplus Food', desc: 'Bakeries, restaurants & catering list surplus. Instant camera expiry analysis, portion tracking.', iconBg: 'bg-emerald-50 dark:bg-emerald-950', iconBorder: 'border-emerald-200 dark:border-emerald-800', iconColor: 'text-emerald-600 dark:text-emerald-400' },
+            { icon: <FiGlobe className="text-xl" />, title: 'Save Food & Earth', desc: 'Divert edible meals from landfills, prevent methane emission, align with UN SDGs.', iconBg: 'bg-emerald-50 dark:bg-emerald-950', iconBorder: 'border-emerald-200 dark:border-emerald-800', iconColor: 'text-emerald-600 dark:text-emerald-400' },
+            { icon: <FiHeart className="text-xl" />, title: 'Save Lives & Dignity', desc: 'Verified food pantries & shelters receive meals. 1-Click claiming, respectful transparent aid.', iconBg: 'bg-rose-50 dark:bg-rose-950', iconBorder: 'border-rose-200 dark:border-rose-800', iconColor: 'text-rose-600 dark:text-rose-400' },
           ].map((card, i) => (
             <div key={i} className="bg-white dark:bg-slate-900 border-2 border-emerald-900/20 dark:border-emerald-700/30 rounded-2xl p-5 shadow-soft hover:shadow-pop-sm transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform">
+              <div className={`w-12 h-12 rounded-2xl ${card.iconBg} border ${card.iconBorder} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${card.iconColor}`}>
                 {card.icon}
               </div>
               <h3 className="font-display font-bold text-base text-slate-900 dark:text-white mb-1.5">{card.title}</h3>
@@ -329,7 +290,7 @@ export const LandingPage: React.FC = () => {
       {/* ========== 5. 3D DASHBOARD PREVIEW CARDS ========== */}
       <section id="dashboards" className="space-y-8">
         <div className="text-center max-w-2xl mx-auto">
-          <span className="text-xs font-display font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
             Three Powerful Dashboards
           </span>
           <h2 className="font-display font-black text-3xl sm:text-4xl text-slate-900 dark:text-white mt-3">
@@ -442,8 +403,8 @@ export const LandingPage: React.FC = () => {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left */}
           <div className="space-y-5 text-left">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-display font-bold text-xs border border-amber-300 dark:border-amber-800">
-              <span>⚡</span> Interactive Impact Simulator
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-mono font-bold text-[10px] uppercase tracking-widest border border-amber-300 dark:border-amber-800">
+              Interactive Impact Simulator
             </span>
             <h2 className="font-display font-black text-2xl sm:text-3xl text-slate-900 dark:text-white">
               Calculate Your Food Rescue Impact
@@ -486,25 +447,25 @@ export const LandingPage: React.FC = () => {
           {/* Right Metrics */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4">
-              <span className="text-2xl">🌱</span>
+              <FiGlobe className="text-2xl text-emerald-600 dark:text-emerald-400" />
               <div className="font-display font-black text-2xl text-emerald-800 dark:text-emerald-300 mt-1">{co2SavedKg} kg</div>
               <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">CO₂ Prevented</div>
               <div className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">Zero landfill decomposition</div>
             </div>
             <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-2xl p-4">
-              <span className="text-2xl">👨‍👩‍👧‍👦</span>
+              <FiUsers className="text-2xl text-amber-600 dark:text-amber-400" />
               <div className="font-display font-black text-2xl text-amber-800 dark:text-amber-300 mt-1">{familiesFed}</div>
               <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">Families Nourished</div>
               <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-1">Warm meal portions</div>
             </div>
             <div className="bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-4">
-              <span className="text-2xl">💰</span>
+              <FiTrendingUp className="text-2xl text-indigo-600 dark:text-indigo-400" />
               <div className="font-display font-black text-2xl text-indigo-800 dark:text-indigo-300 mt-1">${moneySavedVal}</div>
               <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">Food Value Rescued</div>
               <div className="text-[10px] text-indigo-600 dark:text-indigo-400 mt-1">Tax-deductible ESG credit</div>
             </div>
             <div className="bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 rounded-2xl p-4 shadow-pop-sm">
-              <span className="text-2xl">✨</span>
+              <FiCheckCircle className="text-2xl text-amber-700 dark:text-amber-400" />
               <div className="font-display font-black text-2xl text-amber-900 dark:text-amber-200 mt-1">+{barakahPoints}</div>
               <div className="text-xs font-bold text-slate-900 dark:text-white mt-0.5">Barakah Points</div>
               <div className="text-[10px] text-amber-700 dark:text-amber-300 mt-1">Community blessing multiplier</div>

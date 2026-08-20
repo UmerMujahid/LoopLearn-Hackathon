@@ -14,9 +14,23 @@ const getUsers = async (req, res) => {
             .select("-password")
             .sort({ createdAt: -1 });
 
+        // Map _id to id for frontend consistency
+        const mappedUsers = users.map(u => ({
+            id: u._id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            organizationName: u.organizationName,
+            address: u.address,
+            phone: u.phone,
+            isVerified: u.isVerified,
+            createdAt: u.createdAt,
+            updatedAt: u.updatedAt,
+        }));
+
         return res.status(200).json({
-            count: users.length,
-            users
+            count: mappedUsers.length,
+            users: mappedUsers
         });
     } catch (error) {
         return res.status(500).json({

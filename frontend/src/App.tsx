@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import AIAssistant from './components/ai/AIAssistant';
 import ProtectedRoute from './components/common/ProtectedRoute';
-
 import LandingPage from './pages/Landing/LandingPage';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import ProviderDashboard from './pages/Provider/ProviderDashboard';
 import OrganizationDashboard from './pages/Organization/OrganizationDashboard';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+
+/** Resets scroll position to the top on every route change. */
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
 
 export const AppContent: React.FC = () => {
   const { currentUser, isAuthenticated } = useAuth();
@@ -21,6 +29,7 @@ export const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f4] dark:bg-[#080e0a] text-slate-900 dark:text-slate-100 relative transition-colors duration-200">
+      <ScrollToTop />
       <Navbar />
 
       <div className="flex-1 w-full flex flex-col">

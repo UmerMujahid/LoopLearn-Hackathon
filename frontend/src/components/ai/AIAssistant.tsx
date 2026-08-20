@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FiX, FiSend, FiCpu } from 'react-icons/fi';
+import { FiX, FiSend } from 'react-icons/fi';
+import { TbMessageChatbot } from 'react-icons/tb';
 
 const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +30,7 @@ const AIAssistant: React.FC = () => {
         className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white border-2 border-emerald-900 shadow-pop-gold flex items-center justify-center text-xl transition-all active:scale-95"
         aria-label="Toggle AI Assistant"
       >
-        {isOpen ? <FiX /> : <FiCpu />}
+        {isOpen ? <FiX /> : <TbMessageChatbot size={26} />}
       </button>
 
       {/* Drawer Panel */}
@@ -38,7 +39,7 @@ const AIAssistant: React.FC = () => {
           {/* Header */}
           <div className="px-4 py-3 bg-emerald-700 text-white flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <FiCpu />
+              <TbMessageChatbot size={18} />
               <span className="font-display font-bold text-sm">AI Food Safety Assistant</span>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white">

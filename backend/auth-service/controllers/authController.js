@@ -109,7 +109,18 @@ const getProfile = async (req, res) => {
             return res.status(404).json({ message: "User not found." });
         }
 
-        return res.status(200).json({ user });
+        return res.status(200).json({
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                organizationName: user.organizationName,
+                address: user.address,
+                phone: user.phone,
+                isVerified: user.isVerified
+            }
+        });
     } catch (error) {
         return res.status(500).json({
             message: "Server error fetching profile",
@@ -144,7 +155,16 @@ const updateProfile = async (req, res) => {
 
         return res.status(200).json({
             message: "Profile updated successfully",
-            user: updatedUser
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                organizationName: updatedUser.organizationName,
+                address: updatedUser.address,
+                phone: updatedUser.phone,
+                isVerified: updatedUser.isVerified
+            }
         });
     } catch (error) {
         return res.status(500).json({

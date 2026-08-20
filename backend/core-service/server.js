@@ -11,6 +11,7 @@ const foodRoutes = require('./routes/foodRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const organizationRoutes = require('./routes/organizationRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const globalErrorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -35,6 +36,9 @@ app.get('/health', (req, res) => {
         service: 'core-service'
     });
 });
+
+// Global error handler (must be registered AFTER all routes)
+app.use(globalErrorHandler);
 
 const startServer = async () => {
     try {

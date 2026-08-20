@@ -12,9 +12,21 @@ const getOrganizations = async (req, res) => {
             isVerified: true
         }).select('-password');
 
+        // Map _id to id for frontend consistency
+        const mapped = organizations.map(o => ({
+            id: o._id,
+            name: o.name,
+            email: o.email,
+            role: o.role,
+            organizationName: o.organizationName,
+            address: o.address,
+            phone: o.phone,
+            isVerified: o.isVerified,
+        }));
+
         return res.status(200).json({
-            count: organizations.length,
-            organizations
+            count: mapped.length,
+            organizations: mapped
         });
     } catch (error) {
         return res.status(500).json({
