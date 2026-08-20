@@ -1,1 +1,4 @@
 # Placeholder for .gitignore
+.env
+plan.md
+node_modules
