@@ -1,3 +1,10 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
 # Dependencies
 node_modules/
 .pnp
@@ -8,29 +15,6 @@ dist/
 dist-ssr/
 build/
 
-# Environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.*.local
-
-# IDE / Editor
-.vscode/
-!.vscode/settings.json
-!.vscode/extensions.json
-.idea/
-*.swp
-*.swo
-*~
-
-# OS files
-.DS_Store
-Thumbs.db
-Desktop.ini
-ehthumbs.db
-
 # Logs
 *.log
 npm-debug.log*
@@ -38,6 +22,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+logs/
 
 # Testing
 coverage/
@@ -46,15 +31,60 @@ coverage/
 # Vite / Vitest
 .vite/
 *.local
-
-# TypeScript build cache
 *.tsbuildinfo
 
-# Qoder cache
-.qoder/
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
 
-# Misc
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.tfstate.lock.info
+
+# IDE / Editor
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+*.sw?
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# Temp & Cache
 .cache/
 .parcel-cache/
 .vercel/
+.qoder/
 *.map
+temp/
+tmp/
