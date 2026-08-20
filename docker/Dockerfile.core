@@ -1,0 +1,7 @@
+FROM node:20-alpine
+WORKDIR /app
+COPY backend/core-service/package*.json ./
+RUN npm install --omit=dev
+COPY backend/core-service/ ./
+EXPOSE 4002
+CMD ["node", "server.js"]

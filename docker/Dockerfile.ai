@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+WORKDIR /app
+COPY ai-service/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY ai-service/ ./ai-service/
+COPY python-service/ ./python-service/
+WORKDIR /app/ai-service
+EXPOSE 5000
+CMD ["python", "main.py"]

@@ -1,1 +1,94 @@
-# Placeholder for docker-compose.yml
+services:
+  # 1. Authentication Microservice (Port 4001)
+  auth-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.auth
+    container_name: foodloop-auth-service
+    restart: unless-stopped
+    ports:
+      - "4001:4001"
+    env_file:
+      - .env
+    environment:
+      - PORT=4001
+      - NODE_ENV=production
+    networks:
+      - foodloop-net
+
+  # 2. Core Food & Organization Microservice (Port 4002)
+  core-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.core
+    container_name: foodloop-core-service
+    restart: unless-stopped
+    ports:
+      - "4002:4002"
+    env_file:
+      - .env
+    environment:
+      - PORT=4002
+      - NODE_ENV=production
+    networks:
+      - foodloop-net
+
+  # 3. AI, RAG & Matching Service (Port 5000)
+  ai-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ai
+    container_name: foodloop-ai-service
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - PORT=5000
+      - PYTHONUNBUFFERED=1
+    networks:
+      - foodloop-net
+
+  # 4. API Gateway Reverse Proxy (Port 4000)
+  api-gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gateway
+    container_name: foodloop-api-gateway
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    depends_on:
+      - auth-service
+      - core-service
+      - ai-service
+    env_file:
+      - .env
+    environment:
+      - PORT=4000
+      - AUTH_SERVICE_URL=http://auth-service:4001
+      - CORE_SERVICE_URL=http://core-service:4002
+      - AI_SERVICE_URL=http://ai-service:5000
+      - NODE_ENV=production
+    networks:
+      - foodloop-net
+
+  # 5. React Frontend Web App (Port 5173 & 80)
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: foodloop-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - foodloop-net
+
+networks:
+  foodloop-net:
+    driver: bridge
