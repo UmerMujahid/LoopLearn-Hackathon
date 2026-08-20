@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-deployment
+  namespace: foodloop
+  labels:
+    app: ai-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-service
+  template:
+    metadata:
+      labels:
+        app: ai-service
+    spec:
+      containers:
+        - name: ai-service
+          image: foodloop-ai:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: foodloop-secrets
+                  key: MONGO_URI
+            - name: GROQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: foodloop-secrets
+                  key: GROQ_API_KEY
+            - name: GROQ_MODEL
+              valueFrom:
+                configMapKeyRef:
+                  name: foodloop-config
+                  key: GROQ_MODEL
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  namespace: foodloop
+spec:
+  type: ClusterIP
+  selector:
+    app: ai-service
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

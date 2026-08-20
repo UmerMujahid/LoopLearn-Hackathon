@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-deployment
+  namespace: foodloop
+  labels:
+    app: core-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: core-service
+  template:
+    metadata:
+      labels:
+        app: core-service
+    spec:
+      containers:
+        - name: core-service
+          image: foodloop-core:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4002
+          env:
+            - name: PORT
+              value: "4002"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: foodloop-secrets
+                  key: MONGO_URI
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: foodloop-secrets
+                  key: JWT_SECRET
+            - name: CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: foodloop-config
+                  key: CLIENT_URL
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "300m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-service
+  namespace: foodloop
+spec:
+  type: ClusterIP
+  selector:
+    app: core-service
+  ports:
+    - protocol: TCP
+      port: 4002
+      targetPort: 4002

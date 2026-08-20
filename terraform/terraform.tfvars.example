@@ -1,0 +1,8 @@
+environment         = "production"
+docker_network_name = "foodloop-net"
+mongo_port          = 27017
+gateway_port        = 4000
+auth_port           = 4001
+core_port           = 4002
+ai_port             = 5000
+frontend_port       = 80
