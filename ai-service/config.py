@@ -11,7 +11,7 @@ GROQ_MODEL = os.getenv("GROQ_MODEL", "qwen/qwen3.6-27b")
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/foodloop")
 
 # MongoDB initialization
-mongo_client = MongoClient(MONGO_URI)
+mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000, connectTimeoutMS=2000)
 db = mongo_client.get_database()
 
 # Groq client initialization

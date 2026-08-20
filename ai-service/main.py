@@ -16,7 +16,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers.genai_routes import router as genai_router
-
+from routers.rag_routes import router as rag_router
+from routers.agent_routes import router as agent_router
 
 try:
     from config import PORT
@@ -26,7 +27,7 @@ except ImportError:
 # 3. Application Initialization
 app = FastAPI(
     title="FoodLoop AI Service",
-    description="Generative AI, RAG Knowledge Base, and Agentic Matching Services",
+    description="Generative AI, RAG Knowledge Base, and Agentic Matching Services powered by Groq",
     version="1.0.0",
 )
 
@@ -41,10 +42,14 @@ app.add_middleware(
 
 # 5. Route Mounting
 app.include_router(genai_router)
+app.include_router(rag_router)
+app.include_router(agent_router)
+
 
 @app.get("/health", tags=["Health"])
 async def health_check():
     return {"status": "UP", "service": "ai-service", "port": PORT}
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=PORT, reload=True)
