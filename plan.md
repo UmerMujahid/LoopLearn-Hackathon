@@ -21,7 +21,7 @@ FoodLoop connects **surplus food providers** (restaurants, cafeterias, individua
 
 ## 🏗️ Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                    React Frontend (Vite)                 │
 │   Login · Provider Dashboard · Org Dashboard · Admin    │
@@ -55,6 +55,7 @@ FoodLoop connects **surplus food providers** (restaurants, cafeterias, individua
 ## 🗄️ Database Schema (MongoDB Collections)
 
 ### `users`
+
 ```json
 {
   "_id": "ObjectId",
@@ -72,6 +73,7 @@ FoodLoop connects **surplus food providers** (restaurants, cafeterias, individua
 ```
 
 ### `foodListings`
+
 ```json
 {
   "_id": "ObjectId",
@@ -97,6 +99,7 @@ FoodLoop connects **surplus food providers** (restaurants, cafeterias, individua
 ```
 
 ### `requests`
+
 ```json
 {
   "_id": "ObjectId",
@@ -111,6 +114,7 @@ FoodLoop connects **surplus food providers** (restaurants, cafeterias, individua
 ```
 
 ### `sustainability_stats`
+
 ```json
 {
   "_id": "ObjectId",
@@ -128,7 +132,7 @@ FoodLoop connects **surplus food providers** (restaurants, cafeterias, individua
 
 ## 📂 Repository Structure (from cloned repo)
 
-```
+```text
 FoodLoop/
 ├── frontend/                  # React (Vite) app
 ├── backend/
@@ -179,9 +183,11 @@ FoodLoop/
 ## 👥 Work Division
 
 ### Member 1: **Full-Stack Backend + DevOps + Infra**
+
 > Focus: Backend microservices, API gateway, auth, database, Docker, Kubernetes, Terraform, Linux scripts, Git workflow, docs
 
 ### Member 2: **Frontend + AI/ML + Python Services**
+
 > Focus: React frontend, all dashboards, AI service, RAG, Agentic AI, Python OOP classes, UI/UX
 
 ---
@@ -197,7 +203,7 @@ FoodLoop/
 | 0.1 | Git branching strategy | Both | Create `development` branch from `main`. Each member works on `feature/*` branches. Merge to `development` → `main` |
 | 0.2 | Setup MongoDB | Member 1 | MongoDB Atlas (free tier) OR local MongoDB. Create `foodloop` database. Share connection string |
 | 0.3 | Setup `.env.example` | Member 1 | `MONGO_URI`, `JWT_SECRET`, `GEMINI_API_KEY`, `PORT_*` vars |
-| 0.4 | Setup `.gitignore` | Member 1 | node_modules, .env, __pycache__, venv, .DS_Store, dist |
+| 0.4 | Setup `.gitignore` | Member 1 | node_modules, .env, \_\_pycache\_\_, venv, .DS_Store, dist |
 | 0.5 | Install Node.js, Python 3.x, Docker | Both | Ensure toolchain is ready |
 
 ---
@@ -417,6 +423,7 @@ Located in `ai-service/` — Python Flask/FastAPI on port 5000
 ## 🔗 API Endpoints Summary
 
 ### Auth Service (`:4001`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | POST | `/register` | Public | Register new user |
@@ -427,6 +434,7 @@ Located in `ai-service/` — Python Flask/FastAPI on port 5000
 | PUT | `/admin/verify/:id` | Admin | Verify organization |
 
 ### Core Service (`:4002`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | POST | `/food` | Provider | Create food listing |
@@ -447,6 +455,7 @@ Located in `ai-service/` — Python Flask/FastAPI on port 5000
 | GET | `/stats/admin` | Admin | Admin dashboard stats |
 
 ### AI Service (`:5000`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | POST | `/api/ai/recommendations` | Authenticated | GenAI waste-reduction tips |
@@ -458,7 +467,7 @@ Located in `ai-service/` — Python Flask/FastAPI on port 5000
 
 ## 🧪 Required Demo Flow (must work)
 
-```
+```text
 1. Provider registers & logs in
        ↓
 2. Provider creates a food listing (e.g., "50 Vegetarian Meals")

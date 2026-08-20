@@ -1,0 +1,254 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm Cream, Sand & Fresh Emerald Palette */
+  --bg-main: #faf8f4;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f4efe6;
+  --bg-glass: rgba(255, 255, 255, 0.92);
+
+  --text-main: #1a2e22;
+  --text-muted: #4d6357;
+  --text-light: #7e9489;
+
+  /* Fresh Food Colors: Emerald, Warm Amber, Sage, Sand */
+  --color-primary: #059669;
+  --color-primary-dark: #064e3b;
+  --color-primary-light: #d1fae5;
+  --color-emerald-deep: #063d27;
+
+  --color-gold: #d97706;
+  --color-gold-light: #fef3c7;
+  --color-amber: #f59e0b;
+  --color-amber-glow: rgba(245, 158, 11, 0.25);
+
+  --color-sand: #fbf7ee;
+  --color-sand-dark: #ece3d2;
+
+  --color-indigo: #4f46e5;
+  --color-indigo-light: #e0e7ff;
+
+  --color-rose: #e11d48;
+  --color-rose-light: #fff1f2;
+
+  /* Refined Pop Shadows & Borders */
+  --border-color: #063d27;
+  --border-subtle: #dde6e0;
+  --border-width: 2px;
+  --shadow-pop: 4px 4px 0px #063d27;
+  --shadow-pop-sm: 2px 2px 0px #063d27;
+  --shadow-pop-lg: 6px 6px 0px #063d27;
+  --shadow-pop-gold: 4px 4px 0px #d97706;
+  --shadow-pop-emerald: 4px 4px 0px #064e3b;
+  --shadow-soft: 0 4px 24px rgba(6, 61, 39, 0.08);
+  --shadow-glow: 0 0 30px rgba(5, 150, 105, 0.12);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 9999px;
+
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+[data-theme="dark"] {
+  --bg-main: #080e0a;
+  --bg-card: #0f1a14;
+  --bg-card-alt: #14241a;
+  --bg-glass: rgba(15, 26, 20, 0.94);
+
+  --text-main: #f0f7f2;
+  --text-muted: #8fb3a0;
+  --text-light: #5e7d6c;
+
+  --border-color: #1a422d;
+  --border-subtle: #15301f;
+  --shadow-pop: 4px 4px 0px #000000;
+  --shadow-pop-sm: 2px 2px 0px #000000;
+  --shadow-pop-lg: 6px 6px 0px #000000;
+  --shadow-pop-gold: 4px 4px 0px #b45309;
+  --shadow-pop-emerald: 4px 4px 0px #042f1a;
+  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 30px rgba(5, 150, 105, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+/* Food-themed Geometric Pattern Classes */
+.bg-islamic-stars {
+  background-image: radial-gradient(rgba(217, 119, 6, 0.12) 1px, transparent 1px), radial-gradient(rgba(5, 150, 105, 0.08) 1px, transparent 1px);
+  background-position: 0 0, 16px 16px;
+  background-size: 32px 32px;
+}
+
+.bg-islamic-lattice {
+  background-image:
+    linear-gradient(45deg, rgba(217, 119, 6, 0.04) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(217, 119, 6, 0.04) 25%, transparent 25%),
+    linear-gradient(135deg, rgba(5, 150, 105, 0.03) 25%, transparent 25%),
+    linear-gradient(-135deg, rgba(5, 150, 105, 0.03) 25%, transparent 25%);
+  background-size: 28px 28px;
+}
+
+/* Subtle food-themed dot grid */
+.bg-food-dots {
+  background-image: radial-gradient(circle, rgba(5, 150, 105, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Custom animations */
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.02); opacity: 1; box-shadow: 0 0 24px rgba(245, 158, 11, 0.3); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(0.5deg); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(8px) rotate(-0.5deg); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes roadPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s infinite ease-in-out;
+}
+
+.animate-float-slow {
+  animation: floatSlow 4s infinite ease-in-out;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 4.5s infinite ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-road-pulse {
+  animation: roadPulse 2s infinite ease-in-out;
+}
+
+/* 3D Tilt Card perspective */
+.tilt-card-container {
+  perspective: 1000px;
+}
+
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+}
+
+.tilt-card:hover {
+  transform: rotateY(var(--rotate-x, 0deg)) rotateX(var(--rotate-y, 0deg));
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(6, 61, 39, 0.04);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(5, 150, 105, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 119, 6, 0.6);
+}
+
+/* Glass morphism utility */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Gradient text utility */
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #059669, #10b981, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #d97706, #f59e0b, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Box avatar base styles */
+.box-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border: 2px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.box-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
