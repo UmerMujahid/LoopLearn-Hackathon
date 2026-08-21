@@ -7,7 +7,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from config import langchain_llm, groq_client, GROQ_MODEL
+from config import langchain_llm, groq_client, GROQ_MODEL, get_groq_llm, get_groq_client
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
@@ -116,7 +116,7 @@ Format with clear bullet points and bold key temperatures/timelines."""
         results = [d[1] for d in scored_docs[:top_k]]
         return results if results else self.documents[:top_k]
 
-    def query(self, question: str) -> Dict[str, Any]:
+    def query(self, question: str, api_key: str = "") -> Dict[str, Any]:
         """Executes the LangChain LCEL RAG chain."""
         relevant_docs = self.retrieve(question, top_k=3)
 
@@ -125,17 +125,20 @@ Format with clear bullet points and bold key temperatures/timelines."""
             for d in relevant_docs
         ])
 
-        if langchain_llm:
+        active_llm = get_groq_llm(api_key) or langchain_llm
+        active_client = get_groq_client(api_key) or groq_client
+
+        if active_llm:
             # LangChain LCEL Execution: prompt | llm | output_parser
-            chain = self.rag_prompt | langchain_llm | self.output_parser
+            chain = self.rag_prompt | active_llm | self.output_parser
             raw_response = chain.invoke({
                 "context": context_str,
                 "question": question
             })
             clean_answer = clean_llm_response(raw_response)
-        elif groq_client:
+        elif active_client:
             # Fallback to direct client
-            completion = groq_client.chat.completions.create(
+            completion = active_client.chat.completions.create(
                 model=GROQ_MODEL,
                 messages=[
                     {"role": "system", "content": "You are the FoodLoop Food Safety Assistant. Answer concisely based on context."},
@@ -146,7 +149,7 @@ Format with clear bullet points and bold key temperatures/timelines."""
             )
             clean_answer = clean_llm_response(completion.choices[0].message.content or "")
         else:
-            raise RuntimeError("GROQ_API_KEY is not configured.")
+            raise RuntimeError("GROQ_API_KEY is not configured. Please provide your Groq API key in FoodLoop.")
 
         return {
             "success": True,

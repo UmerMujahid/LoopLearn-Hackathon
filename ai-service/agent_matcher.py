@@ -6,7 +6,7 @@ from langchain_core.tools import tool
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from config import db, langchain_llm, groq_client, GROQ_MODEL
+from config import db, langchain_llm, groq_client, GROQ_MODEL, get_groq_llm, get_groq_client
 from food_matcher import FoodMatcher
 
 
@@ -174,8 +174,10 @@ Task:
 
         self.output_parser = StrOutputParser()
 
-    def run(self, user_query: str) -> Dict[str, Any]:
-        """Runs the LangChain agentic matching workflow."""
+    def run(self, user_query: str, max_iterations: int = 5, api_key: str = "") -> Dict[str, Any]:
+        """
+        Executes the autonomous Food Matching Agent loop with dynamic Groq LLM support.
+        """
         actions = []
 
         # Tool 1: Discover available food
@@ -221,16 +223,19 @@ Task:
             "output": f"Ranked {len(top_matches)} optimal matches (scores: {[m['matchScore'] for m in top_matches]})."
         })
 
+        active_llm = get_groq_llm(api_key) or langchain_llm
+        active_client = get_groq_client(api_key) or groq_client
+
         # Step 4: LangChain LCEL Synthesis Chain
-        if langchain_llm:
-            chain = self.agent_prompt | langchain_llm | self.output_parser
+        if active_llm:
+            chain = self.agent_prompt | active_llm | self.output_parser
             raw_response = chain.invoke({
                 "query": user_query,
                 "matches": json.dumps(top_matches, indent=2)
             })
             clean_response = clean_llm_response(raw_response)
-        elif groq_client:
-            completion = groq_client.chat.completions.create(
+        elif active_client:
+            completion = active_client.chat.completions.create(
                 model=GROQ_MODEL,
                 messages=[
                     {"role": "system", "content": "You are the FoodLoop Autonomous Matchmaker Agent."},

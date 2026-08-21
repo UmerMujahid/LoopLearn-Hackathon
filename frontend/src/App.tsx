@@ -12,6 +12,8 @@ import ProviderDashboard from './pages/Provider/ProviderDashboard';
 import OrganizationDashboard from './pages/Organization/OrganizationDashboard';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
+import GroqApiKeyModal from './components/common/GroqApiKeyModal';
+
 /** Resets scroll position to the top on every route change. */
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -82,6 +84,9 @@ export const AppContent: React.FC = () => {
 
       {/* Global AI Assistant Drawer */}
       <AIAssistant />
+
+      {/* Groq API Key Setup Modal (prompts once after login or upon click) */}
+      <GroqApiKeyModal />
     </div>
   );
 };

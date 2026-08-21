@@ -1,12 +1,12 @@
 import re
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from config import db, langchain_llm, groq_client, GROQ_MODEL
+from config import db, langchain_llm, groq_client, GROQ_MODEL, get_groq_llm, get_groq_client
 from waste_analyzer import WasteAnalyzer
 from sustainability_calculator import SustainabilityCalculator
 
@@ -22,6 +22,7 @@ def clean_llm_response(text: str) -> str:
 class RecommendationRequest(BaseModel):
     providerId: Optional[str] = None
     stats: Optional[Dict[str, Any]] = None
+    groqApiKey: Optional[str] = None
 
 
 class SustainabilitySummaryRequest(BaseModel):
@@ -30,6 +31,7 @@ class SustainabilitySummaryRequest(BaseModel):
     totalWasteReducedKg: Optional[float] = 0.0
     totalCo2SavedKg: Optional[float] = 0.0
     activeOrgs: Optional[int] = 0
+    groqApiKey: Optional[str] = None
 
 
 # LangChain Prompt Templates
@@ -85,9 +87,19 @@ output_parser = StrOutputParser()
 
 
 @router.post("/recommendations")
-async def generate_waste_recommendations(payload: RecommendationRequest):
-    if not langchain_llm and not groq_client:
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured.")
+async def generate_waste_recommendations(
+    payload: RecommendationRequest,
+    x_groq_api_key: Optional[str] = Header(None, alias="X-Groq-Api-Key")
+):
+    active_key = (x_groq_api_key or "").strip() or (payload.groqApiKey or "").strip()
+    active_llm = get_groq_llm(active_key) or langchain_llm
+    active_client = get_groq_client(active_key) or groq_client
+
+    if not active_llm and not active_client:
+        raise HTTPException(
+            status_code=400,
+            detail="GROQ_API_KEY is not configured. Please provide your Groq API key in FoodLoop."
+        )
 
     stats = payload.stats
     patterns = {}
@@ -107,8 +119,8 @@ async def generate_waste_recommendations(payload: RecommendationRequest):
         )
 
     try:
-        if langchain_llm:
-            chain = recommendation_prompt | langchain_llm | output_parser
+        if active_llm:
+            chain = recommendation_prompt | active_llm | output_parser
             raw_content = chain.invoke({
                 "total_listings": stats.get("total_listings", 0),
                 "total_surplus_quantity": stats.get("total_surplus_quantity", 0),
@@ -121,7 +133,7 @@ async def generate_waste_recommendations(payload: RecommendationRequest):
             })
             clean_content = clean_llm_response(raw_content)
         else:
-            completion = groq_client.chat.completions.create(
+            completion = active_client.chat.completions.create(
                 model=GROQ_MODEL,
                 messages=[
                     {"role": "system", "content": "You are a kitchen sustainability consultant."},
@@ -143,16 +155,26 @@ async def generate_waste_recommendations(payload: RecommendationRequest):
 
 
 @router.post("/sustainability-summary")
-async def generate_sustainability_summary(payload: SustainabilitySummaryRequest):
-    if not langchain_llm and not groq_client:
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured.")
+async def generate_sustainability_summary(
+    payload: SustainabilitySummaryRequest,
+    x_groq_api_key: Optional[str] = Header(None, alias="X-Groq-Api-Key")
+):
+    active_key = (x_groq_api_key or "").strip() or (payload.groqApiKey or "").strip()
+    active_llm = get_groq_llm(active_key) or langchain_llm
+    active_client = get_groq_client(active_key) or groq_client
+
+    if not active_llm and not active_client:
+        raise HTTPException(
+            status_code=400,
+            detail="GROQ_API_KEY is not configured. Please provide your Groq API key in FoodLoop."
+        )
 
     calc = SustainabilityCalculator()
     co2_saved = payload.totalCo2SavedKg or calc.calculate_co2_saved(payload.totalWasteReducedKg or 0.0)
 
     try:
-        if langchain_llm:
-            chain = sustainability_prompt | langchain_llm | output_parser
+        if active_llm:
+            chain = sustainability_prompt | active_llm | output_parser
             raw_content = chain.invoke({
                 "totalListings": payload.totalListings or 0,
                 "foodRescued": payload.foodRescued or 0,
@@ -162,7 +184,7 @@ async def generate_sustainability_summary(payload: SustainabilitySummaryRequest)
             })
             clean_content = clean_llm_response(raw_content)
         else:
-            completion = groq_client.chat.completions.create(
+            completion = active_client.chat.completions.create(
                 model=GROQ_MODEL,
                 messages=[
                     {"role": "system", "content": "You are an ESG Reporting Specialist."},

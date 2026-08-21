@@ -9,13 +9,19 @@ const apiClient = axios.create({
   },
 });
 
-// Attach JWT token to every outgoing request
+// Attach JWT token and user's Groq API Key to every outgoing request
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('foodloop_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    const groqKey = localStorage.getItem('foodloop_groq_api_key');
+    if (groqKey && groqKey.trim()) {
+      config.headers['X-Groq-Api-Key'] = groqKey.trim();
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

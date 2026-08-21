@@ -10,11 +10,13 @@ import {
   FiAlertCircle,
   FiChevronRight,
   FiZap,
+  FiKey,
 } from 'react-icons/fi';
 import { TbMessageChatbot } from 'react-icons/tb';
 import { aiService, RAGResponse, AgentResponse } from '../../services/aiService';
 import { useAuth } from '../../context/AuthContext';
 import { useFood } from '../../context/FoodContext';
+import { triggerGroqApiKeyModal } from '../common/GroqApiKeyModal';
 
 type AITab = 'rag' | 'recommendations' | 'agent';
 
@@ -36,7 +38,14 @@ const AIAssistant: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AITab>('rag');
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hasGroqKey, setHasGroqKey] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Sync Groq key status from localStorage
+  useEffect(() => {
+    const key = localStorage.getItem('foodloop_groq_api_key');
+    setHasGroqKey(Boolean(key && key.trim()));
+  }, [isOpen]);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -245,13 +254,24 @@ const AIAssistant: React.FC = () => {
                 <p className="text-[9px] sm:text-[10px] text-emerald-200/80 leading-none mt-0.5">RAG Knowledge · GenAI · Match Agent</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-              aria-label="Close"
-            >
-              <FiX size={16} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={triggerGroqApiKeyModal}
+                className="px-2 py-1 rounded-lg bg-emerald-950/70 hover:bg-emerald-950 text-amber-300 border border-emerald-700/60 transition-colors flex items-center gap-1 text-[10px] font-mono font-bold"
+                title="Configure your Groq API Key"
+              >
+                <FiKey size={11} />
+                <span>{hasGroqKey ? 'Key Active' : 'Set Key'}</span>
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Close"
+              >
+                <FiX size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Mode Selector Tabs (Double-box pills) */}
@@ -311,6 +331,19 @@ const AIAssistant: React.FC = () => {
                   <div className="space-y-1">
                     {renderFormattedMarkdown(msg.content)}
                   </div>
+
+                  {msg.isError && (
+                    <div className="mt-2 pt-2 border-t border-rose-200 dark:border-rose-800/50">
+                      <button
+                        type="button"
+                        onClick={triggerGroqApiKeyModal}
+                        className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-[10px] flex items-center gap-1 transition-all active:scale-95"
+                      >
+                        <FiKey size={11} />
+                        <span>Enter Free Groq API Key</span>
+                      </button>
+                    </div>
+                  )}
 
                   {/* Sources display for RAG */}
                   {msg.sources && msg.sources.length > 0 && (
