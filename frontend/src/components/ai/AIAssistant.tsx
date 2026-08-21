@@ -166,20 +166,30 @@ const AIAssistant: React.FC = () => {
     }
   };
 
-  const renderFormattedMarkdown = (text: string) => {
+  const renderFormattedMarkdown = (text: string, isUser = false) => {
     // Basic markdown formatting helper for bold, bullet points, headers
     const lines = text.split('\n');
     return lines.map((line, idx) => {
       if (line.startsWith('### ')) {
         return (
-          <h4 key={idx} className="font-display font-bold text-xs text-emerald-900 dark:text-emerald-300 mt-2 mb-1">
+          <h4
+            key={idx}
+            className={`font-display font-bold text-xs mt-2 mb-1 ${
+              isUser ? 'text-amber-200' : 'text-emerald-900 dark:text-emerald-300'
+            }`}
+          >
             {line.replace('### ', '')}
           </h4>
         );
       }
       if (line.startsWith('## ') || line.startsWith('# ')) {
         return (
-          <h3 key={idx} className="font-display font-black text-sm text-emerald-950 dark:text-emerald-200 mt-2 mb-1">
+          <h3
+            key={idx}
+            className={`font-display font-black text-sm mt-2 mb-1 ${
+              isUser ? 'text-amber-200' : 'text-emerald-950 dark:text-emerald-200'
+            }`}
+          >
             {line.replace(/^#+\s/, '')}
           </h3>
         );
@@ -187,16 +197,26 @@ const AIAssistant: React.FC = () => {
       if (line.startsWith('- ') || line.startsWith('* ')) {
         const cleanItem = line.substring(2);
         return (
-          <li key={idx} className="ml-3 list-disc text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-            <span dangerouslySetInnerHTML={{ __html: formatInline(cleanItem) }} />
+          <li
+            key={idx}
+            className={`ml-3 list-disc text-[11px] leading-relaxed ${
+              isUser ? 'text-white' : 'text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            <span dangerouslySetInnerHTML={{ __html: formatInline(cleanItem, isUser) }} />
           </li>
         );
       }
       if (/^\d+\.\s/.test(line)) {
         const cleanItem = line.replace(/^\d+\.\s/, '');
         return (
-          <li key={idx} className="ml-3 list-decimal text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-            <span dangerouslySetInnerHTML={{ __html: formatInline(cleanItem) }} />
+          <li
+            key={idx}
+            className={`ml-3 list-decimal text-[11px] leading-relaxed ${
+              isUser ? 'text-white' : 'text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            <span dangerouslySetInnerHTML={{ __html: formatInline(cleanItem, isUser) }} />
           </li>
         );
       }
@@ -204,18 +224,27 @@ const AIAssistant: React.FC = () => {
         return <div key={idx} className="h-1.5" />;
       }
       return (
-        <p key={idx} className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-          <span dangerouslySetInnerHTML={{ __html: formatInline(line) }} />
+        <p
+          key={idx}
+          className={`text-[11px] leading-relaxed ${
+            isUser ? 'text-white font-medium' : 'text-slate-700 dark:text-slate-300'
+          }`}
+        >
+          <span dangerouslySetInnerHTML={{ __html: formatInline(line, isUser) }} />
         </p>
       );
     });
   };
 
-  const formatInline = (str: string) => {
+  const formatInline = (str: string, isUser = false) => {
+    const boldClass = isUser ? 'font-bold text-amber-200' : 'font-bold text-slate-900 dark:text-white';
+    const codeClass = isUser
+      ? 'px-1 py-0.5 rounded bg-emerald-900 text-amber-200 font-mono text-[10px] border border-emerald-800'
+      : 'px-1 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-mono text-[10px]';
     return str
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 dark:text-white">$1</strong>')
+      .replace(/\*\*(.*?)\*\*/g, `<strong class="${boldClass}">$1</strong>`)
       .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-      .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-mono text-[10px]">$1</code>');
+      .replace(/`([^`]+)`/g, `<code class="${codeClass}">$1</code>`);
   };
 
   return (
@@ -329,7 +358,7 @@ const AIAssistant: React.FC = () => {
                 >
                   {/* Message content */}
                   <div className="space-y-1">
-                    {renderFormattedMarkdown(msg.content)}
+                    {renderFormattedMarkdown(msg.content, msg.role === 'user')}
                   </div>
 
                   {msg.isError && (
