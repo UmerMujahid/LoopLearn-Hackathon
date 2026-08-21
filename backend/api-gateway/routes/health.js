@@ -15,7 +15,7 @@ const checkService = (serviceName, targetUrl) => {
       {
         hostname: url.hostname,
         port: url.port,
-        path: '/',
+        path: '/health',
         method: 'GET',
         timeout: 2000,
       },
