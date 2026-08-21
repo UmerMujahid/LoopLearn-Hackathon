@@ -19,12 +19,15 @@ import {
   FiUserX,
   FiCloud,
   FiShoppingBag,
+  FiGrid,
 } from 'react-icons/fi';
 import { TiltCard } from '../../components/common/TiltCard';
 import { BoxAvatarOverlay } from '../../components/common/BoxAvatarOverlay';
+import { useAuth } from '../../context/AuthContext';
 import heroDonationImg from '../../assets/hero-donation.png';
 
 export const LandingPage: React.FC = () => {
+  const { currentUser, isAuthenticated } = useAuth();
   const [mealCount, setMealCount] = useState<number>(75);
 
   const co2SavedKg = Math.round(mealCount * 1.85);
@@ -72,21 +75,41 @@ export const LandingPage: React.FC = () => {
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-              <Link
-                to="/register/provider"
-                className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-display font-bold text-sm rounded-xl border-2 border-slate-900 shadow-pop-gold transition-all flex items-center justify-center gap-2 group active:scale-95"
-              >
-                <span>Donate Surplus Food</span>
-                <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                to="/register/organization"
-                className="px-6 py-3.5 bg-emerald-950/80 hover:bg-emerald-900 text-amber-200 font-display font-bold text-sm rounded-xl border-2 border-amber-400/50 transition-all flex items-center justify-center gap-2 active:scale-95"
-              >
-                <span>Browse Community Relief</span>
-              </Link>
-            </div>
+            {isAuthenticated && currentUser ? (
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                <Link
+                  to={currentUser.role === 'provider' ? '/provider' : currentUser.role === 'organization' ? '/organization' : '/admin'}
+                  className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-display font-bold text-sm rounded-xl border-2 border-slate-900 shadow-pop-gold transition-all flex items-center justify-center gap-2 group active:scale-95"
+                  data-testid="hero-dashboard-btn"
+                >
+                  <FiGrid className="text-slate-950" size={16} />
+                  <span>Go to {currentUser.role === 'provider' ? 'Donor' : currentUser.role === 'organization' ? 'Organization' : 'Municipal Admin'} Dashboard</span>
+                  <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  to={currentUser.role === 'provider' ? '/provider/listings' : currentUser.role === 'organization' ? '/organization/browse' : '/admin'}
+                  className="px-6 py-3.5 bg-emerald-950/80 hover:bg-emerald-900 text-amber-200 font-display font-bold text-sm rounded-xl border-2 border-amber-400/50 transition-all flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <span>{currentUser.role === 'provider' ? 'Surplus Inventory' : currentUser.role === 'organization' ? 'Browse Food Surplus' : 'Municipal Oversight'}</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                <Link
+                  to="/register/provider"
+                  className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-display font-bold text-sm rounded-xl border-2 border-slate-900 shadow-pop-gold transition-all flex items-center justify-center gap-2 group active:scale-95"
+                >
+                  <span>Donate Surplus Food</span>
+                  <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  to="/register/organization"
+                  className="px-6 py-3.5 bg-emerald-950/80 hover:bg-emerald-900 text-amber-200 font-display font-bold text-sm rounded-xl border-2 border-amber-400/50 transition-all flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <span>Browse Community Relief</span>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Right: Donation Illustration (transparent PNG, blends with hero theme) */}
@@ -324,7 +347,7 @@ export const LandingPage: React.FC = () => {
                 ))}
               </div>
               <Link
-                to="/register/provider"
+                to={isAuthenticated && currentUser?.role === 'provider' ? '/provider' : '/register/provider'}
                 className="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white font-display font-bold text-xs rounded-xl border-2 border-emerald-900 shadow-pop-sm transition-all flex items-center justify-center gap-1.5"
               >
                 <span>Launch Donors Hub</span>
@@ -355,7 +378,7 @@ export const LandingPage: React.FC = () => {
                 ))}
               </div>
               <Link
-                to="/register/organization"
+                to={isAuthenticated && currentUser?.role === 'organization' ? '/organization' : '/register/organization'}
                 className="w-full py-2.5 px-4 bg-amber-600 hover:bg-amber-700 text-white font-display font-bold text-xs rounded-xl border-2 border-amber-800 shadow-pop-sm transition-all flex items-center justify-center gap-1.5"
               >
                 <span>Launch Relief Portal</span>
@@ -386,7 +409,7 @@ export const LandingPage: React.FC = () => {
                 ))}
               </div>
               <Link
-                to="/login"
+                to={isAuthenticated && currentUser?.role === 'admin' ? '/admin' : '/login'}
                 className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-display font-bold text-xs rounded-xl border-2 border-indigo-800 shadow-pop-sm transition-all flex items-center justify-center gap-1.5"
               >
                 <span>Launch Governance Hub</span>

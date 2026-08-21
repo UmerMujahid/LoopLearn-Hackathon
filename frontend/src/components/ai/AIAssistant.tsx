@@ -215,34 +215,34 @@ const AIAssistant: React.FC = () => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white border-2 border-emerald-950 shadow-pop-emerald flex items-center justify-center text-2xl transition-transform duration-150 active:scale-95 group"
+        className="fixed bottom-5 right-4 sm:right-6 z-40 w-12 h-12 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white border-2 border-emerald-950 shadow-pop-emerald flex items-center justify-center text-xl sm:text-2xl transition-transform duration-150 active:scale-95 group"
         aria-label="Toggle FoodLoop AI Assistant"
       >
         <div className="absolute -top-1 -right-1 flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500 border border-emerald-950"></span>
         </div>
-        {isOpen ? <FiX /> : <TbMessageChatbot className="group-hover:rotate-12 transition-transform" size={28} />}
+        {isOpen ? <FiX /> : <TbMessageChatbot className="group-hover:rotate-12 transition-transform" size={24} />}
       </button>
 
-      {/* Main Drawer Panel with double-box styling */}
+      {/* Main Drawer Panel with calibrated double-box styling */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-6 z-40 w-[92vw] sm:w-[26rem] md:w-[28rem] h-[34rem] bg-[#faf8f4] dark:bg-[#0f1a14] border-2 border-emerald-950 dark:border-emerald-800 rounded-3xl shadow-pop-lg flex flex-col overflow-hidden animate-scale-in">
+        <div className="fixed bottom-19 sm:bottom-20 right-3 sm:right-6 z-40 w-[92vw] sm:w-[22.5rem] md:w-[24rem] h-[27.5rem] sm:h-[28.5rem] max-h-[calc(100vh-5.8rem)] bg-[#faf8f4] dark:bg-[#0f1a14] border-2 border-emerald-950 dark:border-emerald-800 rounded-2xl sm:rounded-3xl shadow-pop-lg flex flex-col overflow-hidden animate-scale-in">
           
           {/* Header */}
-          <div className="px-4 py-3 bg-gradient-to-r from-emerald-800 via-emerald-900 to-emerald-950 text-white border-b-2 border-emerald-950 shrink-0 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-amber-400 text-emerald-950 border border-emerald-950 flex items-center justify-center font-bold text-base shadow-pop-sm">
-                <FiZap size={16} />
+          <div className="px-3.5 py-2.5 bg-gradient-to-r from-emerald-800 via-emerald-900 to-emerald-950 text-white border-b-2 border-emerald-950 shrink-0 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-amber-400 text-emerald-950 border border-emerald-950 flex items-center justify-center font-bold text-sm shadow-pop-sm">
+                <FiZap size={14} />
               </div>
               <div>
-                <div className="font-display font-extrabold text-sm tracking-tight flex items-center gap-1.5">
+                <div className="font-display font-extrabold text-xs sm:text-sm tracking-tight flex items-center gap-1.5">
                   FoodLoop AI Hub
                   <span className="px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 text-[9px] font-black uppercase">
                     Groq
                   </span>
                 </div>
-                <p className="text-[10px] text-emerald-200/80">RAG Knowledge · GenAI · Agentic Matcher</p>
+                <p className="text-[9px] sm:text-[10px] text-emerald-200/80 leading-none mt-0.5">RAG Knowledge · GenAI · Match Agent</p>
               </div>
             </div>
             <button
@@ -250,7 +250,7 @@ const AIAssistant: React.FC = () => {
               className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
               aria-label="Close"
             >
-              <FiX size={18} />
+              <FiX size={16} />
             </button>
           </div>
 

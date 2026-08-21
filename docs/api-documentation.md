@@ -1,4 +1,4 @@
-# 🍽️ FoodLoop REST & Microservices API Documentation
+# FoodLoop REST & Microservices API Documentation
 
 > **Base API Gateway URL:** `http://localhost:4000/api` (or direct service ports in development)  
 > **Authentication:** Bearer Token JWT (`Authorization: Bearer <JWT_TOKEN>`)

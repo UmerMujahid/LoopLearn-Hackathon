@@ -1,4 +1,4 @@
-# 🎬 FoodLoop — Hackathon Required Demo Walkthrough Guide
+# FoodLoop — Hackathon Required Demo Walkthrough Guide
 
 > **Problem Statement:** PS-04 · Smart Food Rescue & Community Resource Platform  
 > **Demo Flow Time:** ~3 to 5 minutes  

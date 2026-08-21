@@ -1,4 +1,4 @@
-# 🍽️ FoodLoop — Smart Food Rescue & Community Resource Platform
+# FoodLoop — Smart Food Rescue & Community Resource Platform
 ## Hackathon Pitch Deck & Technical Presentation · Problem Statement PS-04
 
 ---

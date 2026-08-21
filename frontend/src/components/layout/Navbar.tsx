@@ -1,18 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   FiBell,
   FiX,
   FiMenu,
   FiGrid,
-  FiPlusSquare,
-  FiShoppingBag,
-  FiBarChart2,
-  FiCpu,
-  FiSearch,
-  FiCheckSquare,
-  FiUsers,
-  FiLayers,
   FiLogOut,
   FiChevronDown,
 } from 'react-icons/fi';
@@ -62,39 +54,6 @@ export const Navbar: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Dashboard subpage navigation links per role
-  const getDashboardLinks = () => {
-    if (role === 'admin') {
-      return [
-        { path: '/admin', label: 'Platform Overview', icon: <FiGrid /> },
-        { path: '/admin/listings', label: 'Surplus Oversight', icon: <FiLayers /> },
-        { path: '/admin/organizations', label: 'Org Verification', icon: <FiCheckSquare /> },
-        { path: '/admin/users', label: 'User Directory', icon: <FiUsers /> },
-        { path: '/admin/stats', label: 'Municipal Analytics', icon: <FiBarChart2 /> },
-        { path: '/admin/ai-hub', label: 'AI Governance', icon: <FiCpu /> },
-      ];
-    }
-    if (role === 'organization') {
-      return [
-        { path: '/organization', label: 'Community Hub', icon: <FiGrid /> },
-        { path: '/organization/browse', label: 'Browse Food Surplus', icon: <FiSearch /> },
-        { path: '/organization/claims', label: 'My Claim Orders', icon: <FiShoppingBag /> },
-        { path: '/organization/stats', label: 'Meal Analytics', icon: <FiBarChart2 /> },
-        { path: '/organization/ai-hub', label: 'AI Safety & Assist', icon: <FiCpu /> },
-      ];
-    }
-    // provider
-    return [
-      { path: '/provider', label: 'Donors Dashboard', icon: <FiGrid /> },
-      { path: '/provider/listings', label: 'Surplus Inventory', icon: <FiPlusSquare /> },
-      { path: '/provider/claims', label: 'Incoming Claims', icon: <FiShoppingBag />, badge: '1' },
-      { path: '/provider/stats', label: 'Rescue Impact', icon: <FiBarChart2 /> },
-      { path: '/provider/ai-hub', label: 'AI Redistribution', icon: <FiCpu /> },
-    ];
-  };
-
-  const dashboardLinks = getDashboardLinks();
 
   const getRoleBadgeStyle = (r: string) => {
     if (r === 'provider') return 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-400';
@@ -149,51 +108,6 @@ export const Navbar: React.FC = () => {
             </span>
           </div>
         </Link>
-
-        {/* Center: Dashboard Subpage Links (only on dashboard routes) */}
-        {!isLandingPage && !isAuthRoute && (
-          <nav
-            className="hidden lg:flex items-center gap-0.5 p-1 rounded-full"
-            style={{
-              background: 'rgba(6,61,39,0.05)',
-              border: '1px solid rgba(6,61,39,0.10)',
-            }}
-            aria-label="Dashboard Sub Navigation"
-          >
-            {dashboardLinks.map((link) => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                end={link.path === '/provider' || link.path === '/organization' || link.path === '/admin'}
-                className={({ isActive }) =>
-                  `flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-display font-semibold text-xs whitespace-nowrap transition-all ${
-                    isActive
-                      ? 'text-emerald-900 dark:text-white'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
-                  }`
-                }
-                style={({ isActive }) =>
-                  isActive
-                    ? {
-                        background: 'rgba(255,255,255,0.85)',
-                        backdropFilter: 'blur(8px)',
-                        boxShadow: '0 2px 8px rgba(6,61,39,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
-                        border: '1px solid rgba(6,61,39,0.14)',
-                      }
-                    : {}
-                }
-              >
-                <span className="text-sm">{link.icon}</span>
-                <span>{link.label}</span>
-                {link.badge && (
-                  <span className="ml-0.5 bg-amber-500 text-slate-950 text-[9px] font-extrabold px-1.5 rounded-full border border-amber-700">
-                    {link.badge}
-                  </span>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-        )}
 
         {/* Center: Landing Page Nav */}
         {isLandingPage && (
@@ -297,65 +211,77 @@ export const Navbar: React.FC = () => {
 
           {/* User Profile / Auth buttons */}
           {isAuthenticated && authUser ? (
-            <div className="relative" ref={userMenuRef}>
-              <button
-                type="button"
-                onClick={() => setShowUserDropdown((prev) => !prev)}
-                className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700 text-left"
-                data-testid="user-profile-chip"
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Prominent Dashboard Button */}
+              <Link
+                to={authUser.role === 'provider' ? '/provider' : authUser.role === 'organization' ? '/organization' : '/admin'}
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-display font-bold text-xs sm:text-sm rounded-full border-2 border-emerald-950 shadow-pop-sm flex items-center gap-1.5 transition-all active:scale-95"
+                data-testid="navbar-dashboard-btn"
               >
-                <BoxAvatarOverlay
-                  role={role === 'provider' ? 'donor' : role === 'organization' ? 'organization' : 'admin'}
-                  size="sm"
-                />
-                <div className="hidden sm:flex flex-col">
-                  <span className="font-display font-semibold text-xs text-slate-900 dark:text-slate-100 leading-tight">
-                    {authUser.name}
-                  </span>
-                  <span
-                    className={`text-[9px] font-extrabold uppercase px-1.5 rounded border w-fit ${getRoleBadgeStyle(authUser.role)}`}
-                    data-testid="user-role-badge"
-                  >
-                    {getRoleLabel(authUser.role)}
-                  </span>
-                </div>
-                <FiChevronDown className="text-slate-400 text-xs hidden sm:block" />
-              </button>
+                <FiGrid className="text-amber-300" size={14} />
+                <span>Dashboard</span>
+              </Link>
 
-              {showUserDropdown && (
-                <div
-                  className="absolute right-0 mt-2 w-56 rounded-xl z-50 p-2 text-xs"
-                  style={{
-                    background: 'rgba(255,255,255,0.96)',
-                    backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(6,61,39,0.12)',
-                    boxShadow: '0 16px 32px rgba(0,0,0,0.10)',
-                  }}
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowUserDropdown((prev) => !prev)}
+                  className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700 text-left"
+                  data-testid="user-profile-chip"
                 >
-                  <div className="p-2.5 border-b border-slate-100">
-                    <div className="font-display font-bold text-sm text-slate-900 truncate">
+                  <BoxAvatarOverlay
+                    role={role === 'provider' ? 'donor' : role === 'organization' ? 'organization' : 'admin'}
+                    size="sm"
+                  />
+                  <div className="hidden sm:flex flex-col">
+                    <span className="font-display font-semibold text-xs text-slate-900 dark:text-slate-100 leading-tight">
                       {authUser.name}
-                    </div>
-                    <div className="text-[10px] text-slate-400 truncate mt-0.5">{authUser.email}</div>
+                    </span>
+                    <span
+                      className={`text-[9px] font-extrabold uppercase px-1.5 rounded border w-fit ${getRoleBadgeStyle(authUser.role)}`}
+                      data-testid="user-role-badge"
+                    >
+                      {getRoleLabel(authUser.role)}
+                    </span>
                   </div>
-                  <div className="py-1">
+                  <FiChevronDown className="text-slate-400 text-xs hidden sm:block" />
+                </button>
+
+                {showUserDropdown && (
+                  <div
+                    className="absolute right-0 mt-2 w-56 rounded-xl z-50 p-2 text-xs"
+                    style={{
+                      background: 'rgba(255,255,255,0.96)',
+                      backdropFilter: 'blur(16px)',
+                      border: '1px solid rgba(6,61,39,0.12)',
+                      boxShadow: '0 16px 32px rgba(0,0,0,0.10)',
+                    }}
+                  >
+                    <div className="p-2.5 border-b border-slate-100">
+                      <div className="font-display font-bold text-sm text-slate-900 truncate">
+                        {authUser.name}
+                      </div>
+                      <div className="text-[10px] text-slate-400 truncate mt-0.5">{authUser.email}</div>
+                    </div>
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        onClick={() => { setShowUserDropdown(false); navigate('/login'); }}
+                        className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-slate-50 font-medium text-slate-700 flex items-center gap-2"
+                      >
+                        Switch Account
+                      </button>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => { setShowUserDropdown(false); navigate('/login'); }}
-                      className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-slate-50 font-medium text-slate-700 flex items-center gap-2"
+                      onClick={handleLogout}
+                      className="w-full text-left flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold border-t border-slate-100"
                     >
-                      Switch Account
+                      <FiLogOut /> Sign Out
                     </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-full text-left flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold border-t border-slate-100"
-                  >
-                    <FiLogOut /> Sign Out
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           ) : (
             <div className="flex items-center gap-2">
@@ -413,39 +339,42 @@ export const Navbar: React.FC = () => {
             borderColor: 'rgba(6,61,39,0.10)',
           }}
         >
-          {!isLandingPage && !isAuthRoute ? (
-            <>
-              <div className="font-mono font-bold text-[10px] uppercase text-emerald-700 tracking-widest opacity-70">
-                Dashboard Pages
-              </div>
-              <nav className="flex flex-col gap-1">
-                {dashboardLinks.map((link) => (
-                  <NavLink
-                    key={link.path}
-                    to={link.path}
-                    end={link.path === '/provider' || link.path === '/organization' || link.path === '/admin'}
-                    onClick={() => setShowMobileMenu(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-2.5 rounded-xl font-display font-semibold text-sm transition-all ${
-                        isActive
-                          ? 'bg-emerald-700 text-amber-100'
-                          : 'text-slate-600 hover:bg-slate-50'
-                      }`
-                    }
-                  >
-                    <span>{link.icon}</span>
-                    <span>{link.label}</span>
-                  </NavLink>
-                ))}
-              </nav>
-            </>
-          ) : (
+          {isAuthenticated && authUser && (
+            <Link
+              to={authUser.role === 'provider' ? '/provider' : authUser.role === 'organization' ? '/organization' : '/admin'}
+              onClick={() => setShowMobileMenu(false)}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-700 text-white rounded-xl font-display font-bold text-sm shadow-pop-sm"
+            >
+              <FiGrid className="text-amber-300" />
+              <span>Go to Dashboard</span>
+            </Link>
+          )}
+
+          {isLandingPage ? (
             <>
               <a href="#problem" onClick={() => setShowMobileMenu(false)} className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-xl">The Problem</a>
               <a href="#solution" onClick={() => setShowMobileMenu(false)} className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-xl">How It Works</a>
               <a href="#dashboards" onClick={() => setShowMobileMenu(false)} className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-xl">Dashboards</a>
               <a href="#impact" onClick={() => setShowMobileMenu(false)} className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-xl">Impact</a>
             </>
+          ) : (
+            <Link
+              to="/"
+              onClick={() => setShowMobileMenu(false)}
+              className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-xl"
+            >
+              FoodLoop Home
+            </Link>
+          )}
+
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={() => { setShowMobileMenu(false); handleLogout(); }}
+              className="w-full text-left flex items-center gap-2 px-3 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 rounded-xl border-t border-slate-100"
+            >
+              <FiLogOut /> Sign Out
+            </button>
           )}
         </div>
       )}

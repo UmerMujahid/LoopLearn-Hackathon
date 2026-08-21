@@ -1,0 +1,43 @@
+# Dependencies (use npm install inside container instead)
+**/node_modules
+
+# Git
+.git
+.gitignore
+
+# IDE & Editor
+.vscode
+.qoder
+.idea
+.agents
+
+# Environment Secrets (NEVER copy into images)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Build Artifacts
+**/dist
+**/build
+**/coverage
+
+# Logs
+*.log
+npm-debug.log*
+
+# Python
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/venv
+**/.venv
+**/env
+
+# Terraform State
+.terraform
+*.tfstate
+*.tfstate.*
+
+# OS
+.DS_Store
+Thumbs.db

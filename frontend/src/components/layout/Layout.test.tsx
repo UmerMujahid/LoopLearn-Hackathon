@@ -47,42 +47,24 @@ describe('Layout Components', () => {
       expect(screen.getByText('Impact')).toBeInTheDocument();
     });
 
-    it('shows dashboard subpage links on provider route', () => {
-      renderWithProviders(<Navbar />, { route: '/provider' });
-      expect(screen.getByText('Donors Dashboard')).toBeInTheDocument();
-      expect(screen.getByText('Surplus Inventory')).toBeInTheDocument();
-      expect(screen.getByText('Incoming Claims')).toBeInTheDocument();
-      expect(screen.getByText('Rescue Impact')).toBeInTheDocument();
-      expect(screen.getByText('AI Redistribution')).toBeInTheDocument();
-    });
+    it('renders dashboard button and profile chip when authenticated', () => {
+      localStorage.setItem('foodloop_token', 'test-token');
+      localStorage.setItem(
+        'foodloop_user',
+        JSON.stringify({
+          id: 'u1',
+          name: 'Chef Tariq',
+          email: 'tariq@kitchen.org',
+          role: 'provider',
+          createdAt: new Date().toISOString(),
+        })
+      );
 
-    it('shows dashboard subpage links on organization route', () => {
-      renderWithProviders(<Navbar />, { route: '/organization' });
-      expect(screen.getByText('Community Hub')).toBeInTheDocument();
-      expect(screen.getByText('Browse Food Surplus')).toBeInTheDocument();
-      expect(screen.getByText('My Claim Orders')).toBeInTheDocument();
-      expect(screen.getByText('Meal Analytics')).toBeInTheDocument();
-      expect(screen.getByText('AI Safety & Assist')).toBeInTheDocument();
-    });
-
-    it('shows dashboard subpage links on admin route', () => {
-      renderWithProviders(<Navbar />, { route: '/admin' });
-      expect(screen.getByText('Platform Overview')).toBeInTheDocument();
-      expect(screen.getByText('Surplus Oversight')).toBeInTheDocument();
-      expect(screen.getByText('Org Verification')).toBeInTheDocument();
-      expect(screen.getByText('User Directory')).toBeInTheDocument();
-      expect(screen.getByText('Municipal Analytics')).toBeInTheDocument();
-      expect(screen.getByText('AI Governance')).toBeInTheDocument();
-    });
-
-    it('does not show dashboard nav on landing page', () => {
       renderWithProviders(<Navbar />, { route: '/' });
-      expect(screen.queryByText('Donors Dashboard')).not.toBeInTheDocument();
-    });
-
-    it('does not show dashboard nav on auth routes', () => {
-      renderWithProviders(<Navbar />, { route: '/login' });
-      expect(screen.queryByText('Donors Dashboard')).not.toBeInTheDocument();
+      expect(screen.getByTestId('navbar-dashboard-btn')).toBeInTheDocument();
+      expect(screen.getByText('Dashboard')).toBeInTheDocument();
+      expect(screen.getByText('Chef Tariq')).toBeInTheDocument();
+      expect(screen.queryByText('Sign In')).not.toBeInTheDocument();
     });
   });
 
