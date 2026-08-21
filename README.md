@@ -207,6 +207,18 @@ python ai-service/test_ai_service.py
 
 ---
 
+## 📚 Project Documentation & Pitch Deliverables
+
+All required submission artifacts for **PS-04** are documented and accessible in the [`docs/`](docs/) directory:
+
+- 🗺️ **[System Architecture Diagram (SVG)](docs/architecture.svg)** — Interactive visual map of all microservices, API Gateway, AI layers, and databases.
+- 🍃 **[Database Schema & ERD (SVG)](docs/database-schema.svg)** — Visual breakdown of MongoDB collections (`Users`, `FoodListings`, `Requests`).
+- 📖 **[Comprehensive API Reference](docs/api-documentation.md)** — Full specification of all REST endpoints, request/response formats, and cURL commands.
+- 🎬 **[Hackathon Demo Walkthrough Guide](docs/demo-guide.md)** — Step-by-step required demo script with credentials and test personas.
+- 📊 **[Hackathon Presentation Pitch Deck](docs/presentation.md)** — Slide-by-slide pitch deck covering Problem, Solution, AI Innovation, OOP Math, and Impact.
+
+---
+
 ## 👥 Team
 - **Umer Mujahid** — Full Stack & AI Engineering
 - **Muhammad Basim Irfan** — Backend Architecture & Microservices
@@ -215,3 +227,4 @@ python ai-service/test_ai_service.py
 
 ## 📄 License
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
