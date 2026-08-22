@@ -2,6 +2,9 @@ import json
 import re
 from typing import List, Dict, Any, Optional
 
+from bson import ObjectId
+import datetime
+
 from langchain_core.tools import tool
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -10,7 +13,23 @@ from config import db, langchain_llm, groq_client, GROQ_MODEL, get_groq_llm, get
 from food_matcher import FoodMatcher
 
 
+def serialize_mongo_doc(doc: Any) -> Any:
+    """Recursively converts MongoDB ObjectIds, datetimes, and nested dicts to JSON-serializable primitives."""
+    if doc is None:
+        return None
+    if isinstance(doc, list):
+        return [serialize_mongo_doc(item) for item in doc]
+    if isinstance(doc, dict):
+        return {str(k): serialize_mongo_doc(v) for k, v in doc.items()}
+    if isinstance(doc, ObjectId):
+        return str(doc)
+    if isinstance(doc, (datetime.datetime, datetime.date)):
+        return doc.isoformat()
+    return doc
+
+
 def clean_llm_response(text: str) -> str:
+    """Strips <think> tags and returns clean markdown content."""
     cleaned = re.sub(r"<think>.*?(?:</think>|$)", "", text, flags=re.DOTALL)
     return cleaned.strip()
 
@@ -20,10 +39,10 @@ def extract_query_categories(query: str) -> List[str]:
     q = query.lower()
     categories = []
     category_map = {
-        "meals": ["meal", "meals", "rice", "curry", "cooked", "dinner", "lunch"],
-        "bakery": ["bakery", "bread", "pastry", "pastries", "buns", "cake", "croissant"],
-        "produce": ["produce", "fruit", "fruits", "vegetable", "vegetables", "apple", "spinach", "organic"],
-        "dairy": ["dairy", "milk", "cheese", "yogurt", "butter"],
+        "meals": ["meal", "meals", "rice", "curry", "cooked", "dinner", "lunch", "biryani", "karahi", "nihari"],
+        "bakery": ["bakery", "bread", "pastry", "pastries", "buns", "cake", "croissant", "naan", "roti"],
+        "produce": ["produce", "fruit", "fruits", "vegetable", "vegetables", "apple", "spinach", "organic", "mangoes"],
+        "dairy": ["dairy", "milk", "cheese", "yogurt", "butter", "lassi"],
         "beverages": ["beverage", "beverages", "drink", "drinks", "juice"],
     }
     for cat, keywords in category_map.items():
@@ -155,13 +174,11 @@ def find_available_food_tool(category: str = "all", location: str = "") -> str:
     listings: List[Dict[str, Any]] = []
     try:
         if db is not None:
-            db_listings = list(db.foodlistings.find(query).limit(15))
-            for l in db_listings:
-                if "_id" in l:
-                    l["_id"] = str(l["_id"])
-                listings.append(l)
-    except Exception:
-        pass
+            raw_docs = list(db.foodlistings.find(query).limit(20))
+            for item in raw_docs:
+                listings.append(serialize_mongo_doc(item))
+    except Exception as e:
+        print(f"MongoDB foodlistings fetch warning: {e}")
 
     # Ensure robust inventory by merging with sample listings if sparse
     if len(listings) < 3:
@@ -169,9 +186,9 @@ def find_available_food_tool(category: str = "all", location: str = "") -> str:
         for sample in sample_listings_data:
             if sample.get("foodName") not in existing_names:
                 if category == "all" or sample.get("category") == category:
-                    listings.append(sample)
+                    listings.append(serialize_mongo_doc(sample))
 
-    return json.dumps(listings)
+    return json.dumps(listings, default=str)
 
 
 @tool
@@ -186,22 +203,20 @@ def find_organizations_tool(location: str = "", verified_only: bool = False) -> 
     orgs: List[Dict[str, Any]] = []
     try:
         if db is not None:
-            db_orgs = list(db.users.find(query).limit(15))
-            for o in db_orgs:
-                if "_id" in o:
-                    o["_id"] = str(o["_id"])
-                orgs.append(o)
-    except Exception:
-        pass
+            raw_docs = list(db.users.find(query).limit(20))
+            for item in raw_docs:
+                orgs.append(serialize_mongo_doc(item))
+    except Exception as e:
+        print(f"MongoDB users fetch warning: {e}")
 
     # Merge with sample orgs if sparse
     if len(orgs) < 2:
         existing_names = {o.get("organizationName") or o.get("name") for o in orgs}
         for sample in sample_orgs_data:
             if sample.get("organizationName") not in existing_names:
-                orgs.append(sample)
+                orgs.append(serialize_mongo_doc(sample))
 
-    return json.dumps(orgs)
+    return json.dumps(orgs, default=str)
 
 
 class LangChainFoodMatchingAgent:
@@ -219,7 +234,7 @@ class LangChainFoodMatchingAgent:
                 "system",
                 "You are the FoodLoop Autonomous Matchmaker Agent powered by LangChain and Groq. "
                 "Synthesize tool outputs into an urgent, high-impact surplus redistribution plan. "
-                "Do not include any internal thoughts, reasoning tags (<think>), or conversational filler."
+                "Do not include any internal thoughts, reasoning tags, or conversational filler."
             ),
             (
                 "user",
@@ -280,7 +295,7 @@ Length constraint: Keep the output medium-length (between 130 to 190 words max).
                     "category": listing_cat,
                     "quantity": f"{listing.get('quantity')} {listing.get('unit')}",
                     "pickupLocation": listing.get("pickupLocation"),
-                    "availableUntil": listing.get("availableUntil", "Today"),
+                    "availableUntil": str(listing.get("availableUntil", "Today")),
                     "orgName": org.get("organizationName") or org.get("name") or "Community Relief Center",
                     "orgContact": org.get("phone") or org.get("email") or "Registered Hub",
                     "orgAddress": org.get("address", "Local District"),
@@ -319,10 +334,11 @@ Length constraint: Keep the output medium-length (between 130 to 190 words max).
                 chain = self.agent_prompt | active_llm | self.output_parser
                 raw_response = chain.invoke({
                     "query": user_query,
-                    "matches": json.dumps(top_matches, indent=2)
+                    "matches": json.dumps(top_matches, indent=2, default=str)
                 })
                 clean_response = clean_llm_response(raw_response)
-            except Exception:
+            except Exception as e:
+                print(f"Agent LCEL synthesis warning: {e}")
                 clean_response = ""
 
         if not clean_response and active_client:
@@ -331,13 +347,14 @@ Length constraint: Keep the output medium-length (between 130 to 190 words max).
                     model=GROQ_MODEL,
                     messages=[
                         {"role": "system", "content": "You are the FoodLoop Autonomous Matchmaker Agent. Keep output medium length (130-190 words)."},
-                        {"role": "user", "content": f"Query: {user_query}\n\nMatches: {json.dumps(top_matches, indent=2)}"}
+                        {"role": "user", "content": f"Query: {user_query}\n\nMatches: {json.dumps(top_matches, indent=2, default=str)}"}
                     ],
                     temperature=0.2,
-                    max_tokens=500
+                    max_tokens=1500
                 )
                 clean_response = clean_llm_response(completion.choices[0].message.content or "")
-            except Exception:
+            except Exception as e:
+                print(f"Agent Groq client warning: {e}")
                 clean_response = ""
 
         if not clean_response:
@@ -368,5 +385,5 @@ Length constraint: Keep the output medium-length (between 130 to 190 words max).
         }
 
 
-# Singleton agent instance
+# Global singleton instance for FastAPI routes
 matching_agent = LangChainFoodMatchingAgent()

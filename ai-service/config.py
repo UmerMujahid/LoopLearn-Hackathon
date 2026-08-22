@@ -8,7 +8,7 @@ load_dotenv()
 
 PORT = int(os.getenv("PORT", 5000))
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "qwen/qwen3.6-27b")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/foodloop")
 
 # MongoDB initialization
