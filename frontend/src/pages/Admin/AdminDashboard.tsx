@@ -26,6 +26,7 @@ import {
   FiPhone,
   FiMapPin,
   FiArrowRight,
+  FiSearch,
 } from 'react-icons/fi';
 
 type AdminView = 'overview' | 'organizations' | 'listings' | 'users';
@@ -45,6 +46,10 @@ const AdminDashboard: React.FC = () => {
   // Global Listings
   const [allListings, setAllListings] = useState<FoodListing[]>([]);
   const [listingsLoading, setListingsLoading] = useState(false);
+  const [listingSearchQuery, setListingSearchQuery] = useState('');
+  const [listingCategoryFilter, setListingCategoryFilter] = useState('all');
+  const [listingStatusFilter, setListingStatusFilter] = useState('all');
+  const [listingDeletingId, setListingDeletingId] = useState<string | null>(null);
 
   // Users Directory
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -104,16 +109,22 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteListing = async (id: string) => {
-    if (!window.confirm('Admin Action: Are you sure you want to permanently remove this listing?')) return;
+  const handleDeleteListing = async (id: string, foodName?: string) => {
+    const promptText = foodName
+      ? `Admin Action: Are you sure you want to permanently delete "${foodName}" from the platform? This cannot be undone.`
+      : 'Admin Action: Are you sure you want to permanently delete this listing from the platform?';
+    if (!window.confirm(promptText)) return;
+    setListingDeletingId(id);
     try {
       await foodService.deleteListing(id);
-      showToast('Listing removed from platform');
+      showToast(`Listing "${foodName || id}" permanently removed from platform`);
       setAllListings((prev) => prev.filter((l) => l._id !== id));
       const updatedStats = await statsService.getAdminStats();
       setAdminStats(updatedStats);
     } catch (err: any) {
       showToast(err?.response?.data?.message || 'Failed to delete listing', 'error');
+    } finally {
+      setListingDeletingId(null);
     }
   };
 
@@ -137,7 +148,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const totalListings = adminStats?.totalListings ?? allListings.length;
-  const foodRescued = adminStats?.foodRescued ?? 0;
+  const foodRescued = adminStats?.foodRescued ?? allListings.filter((l) => l.status === 'collected').length;
   const activeOrgs = adminStats?.activeOrgs ?? allOrgs.filter((o) => o.isVerified).length;
   const pendingOrgsCount = adminStats?.pendingOrgs ?? allOrgs.filter((o) => !o.isVerified).length;
   const totalCo2 = adminStats?.totalCo2SavedKg ?? 0;
@@ -155,6 +166,22 @@ const AdminDashboard: React.FC = () => {
     if (userRoleFilter === 'all') return allUsers;
     return allUsers.filter((u) => u.role === userRoleFilter);
   }, [allUsers, userRoleFilter]);
+
+  // Filtered platform listings for admin oversight
+  const filteredAdminListings = useMemo(() => {
+    return allListings.filter((l) => {
+      const matchesCategory = listingCategoryFilter === 'all' || l.category === listingCategoryFilter;
+      const matchesStatus = listingStatusFilter === 'all' || l.status === listingStatusFilter;
+      const providerObj = typeof l.providerId === 'object' ? l.providerId : null;
+      const providerName = providerObj?.name || providerObj?.organizationName || '';
+      const matchesSearch =
+        !listingSearchQuery ||
+        l.foodName.toLowerCase().includes(listingSearchQuery.toLowerCase()) ||
+        l.pickupLocation.toLowerCase().includes(listingSearchQuery.toLowerCase()) ||
+        providerName.toLowerCase().includes(listingSearchQuery.toLowerCase());
+      return matchesCategory && matchesStatus && matchesSearch;
+    });
+  }, [allListings, listingCategoryFilter, listingStatusFilter, listingSearchQuery]);
 
   // SDG progress computations
   const sdgGoals = [
@@ -187,6 +214,13 @@ const AdminDashboard: React.FC = () => {
       color: 'from-indigo-500 to-indigo-600',
     },
   ];
+
+  const navigateToView = (view: AdminView) => {
+    setActiveView(view);
+    setTimeout(() => {
+      document.getElementById('dashboard-views-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
+  };
 
   return (
     <div className="space-y-8 animate-slide-up pb-12">
@@ -234,7 +268,7 @@ const AdminDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setActiveView('overview');
+              navigateToView('overview');
               handleGenerateAIReport();
             }}
             className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-emerald-950 font-display font-black text-xs border-2 border-emerald-950 shadow-pop-gold flex items-center gap-2 transition-all active:scale-95"
@@ -307,7 +341,7 @@ const AdminDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveView('overview');
+                    navigateToView('overview');
                     handleGenerateAIReport();
                   }}
                   className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-300 hover:text-emerald-950 dark:hover:text-white transition-colors group/btn shrink-0"
@@ -350,7 +384,7 @@ const AdminDashboard: React.FC = () => {
                   <span>Across registered commercial donors</span>
                   <button
                     type="button"
-                    onClick={() => setActiveView('listings')}
+                    onClick={() => navigateToView('listings')}
                     className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
                   >
                     View <FiArrowRight size={10} />
@@ -391,7 +425,7 @@ const AdminDashboard: React.FC = () => {
                   <span>Municipal compliance & vetting</span>
                   <button
                     type="button"
-                    onClick={() => setActiveView('organizations')}
+                    onClick={() => navigateToView('organizations')}
                     className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
                   >
                     Queue <FiArrowRight size={10} />
@@ -404,11 +438,11 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Main View Navigation Tabs — Centered */}
-      <div className="flex justify-center w-full my-2 sm:my-3">
+      <div id="dashboard-views-section" className="flex justify-center w-full my-2 sm:my-3 scroll-mt-24">
         <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#f4efe6] dark:bg-[#14241a] border-2 border-emerald-950/20 w-fit flex-wrap justify-center shadow-soft">
           <button
             type="button"
-            onClick={() => setActiveView('overview')}
+            onClick={() => navigateToView('overview')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
               activeView === 'overview'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -419,7 +453,7 @@ const AdminDashboard: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveView('organizations')}
+            onClick={() => navigateToView('organizations')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 relative ${
               activeView === 'organizations'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -435,7 +469,7 @@ const AdminDashboard: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveView('listings')}
+            onClick={() => navigateToView('listings')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
               activeView === 'listings'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -446,7 +480,7 @@ const AdminDashboard: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveView('users')}
+            onClick={() => navigateToView('users')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
               activeView === 'users'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -676,62 +710,140 @@ const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* VIEW 3: Global Surplus Oversight */}
+      {/* VIEW 3: Global Surplus Oversight & Listing Management (Admin can delete every listing) */}
       {activeView === 'listings' && (
         <div className="p-6 rounded-3xl bg-white dark:bg-[#0f1a14] border-2 border-emerald-950/20 dark:border-emerald-800 shadow-soft space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h2 className="font-display font-black text-lg text-emerald-950 dark:text-white">
-                Platform Food Listings Oversight
-              </h2>
-              <p className="text-xs text-slate-500">
-                Manage and audit all food surplus postings across all food providers.
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="font-display font-black text-lg text-emerald-950 dark:text-white">
+                  Platform Food Listings Oversight
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-100 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300 border border-rose-300">
+                  Admin Deletion Authority
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Audit all active, reserved, and collected food surplus postings across all food donors. Administrators can delete any listing.
               </p>
             </div>
-            <span className="text-xs font-bold text-slate-600">
-              Total: {allListings.length} Listings
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">
+                Showing {filteredAdminListings.length} of {allListings.length}
+              </span>
+            </div>
           </div>
 
-          {allListings.length === 0 ? (
-            <p className="text-xs text-slate-500 py-8 text-center">No listings recorded on platform yet.</p>
+          {/* Search and Filters Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
+            <div className="sm:col-span-6 relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
+              <input
+                type="text"
+                value={listingSearchQuery}
+                onChange={(e) => setListingSearchQuery(e.target.value)}
+                placeholder="Search by food name, donor, or location..."
+                className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-xs outline-none focus:border-emerald-600"
+              />
+            </div>
+            <div className="sm:col-span-3">
+              <select
+                value={listingCategoryFilter}
+                onChange={(e) => setListingCategoryFilter(e.target.value)}
+                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-bold text-xs outline-none"
+              >
+                <option value="all">All Categories</option>
+                <option value="meals">Meals</option>
+                <option value="bakery">Bakery</option>
+                <option value="produce">Produce</option>
+                <option value="dairy">Dairy</option>
+                <option value="beverages">Beverages</option>
+              </select>
+            </div>
+            <div className="sm:col-span-3">
+              <select
+                value={listingStatusFilter}
+                onChange={(e) => setListingStatusFilter(e.target.value)}
+                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-bold text-xs outline-none"
+              >
+                <option value="all">All Statuses</option>
+                <option value="available">Available</option>
+                <option value="reserved">Reserved</option>
+                <option value="collected">Collected</option>
+                <option value="expired">Expired</option>
+              </select>
+            </div>
+          </div>
+
+          {filteredAdminListings.length === 0 ? (
+            <div className="py-12 text-center text-xs text-slate-500">
+              No food listings match the current search filters.
+            </div>
           ) : (
             <div className="space-y-3">
-              {allListings.map((item) => {
+              {filteredAdminListings.map((item) => {
                 const provider = typeof item.providerId === 'object' ? item.providerId : null;
+                const providerName = provider?.organizationName || provider?.name || 'Food Donor';
+                const isDeleting = listingDeletingId === item._id;
 
                 return (
                   <div
                     key={item._id}
-                    className="p-4 rounded-2xl bg-[#faf8f4] dark:bg-slate-900/80 border-2 border-emerald-950/15 dark:border-emerald-800/40 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    className="p-4 rounded-2xl bg-[#faf8f4] dark:bg-slate-900/80 border-2 border-emerald-950/15 dark:border-emerald-800/40 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-emerald-700/50 transition-colors"
                   >
-                    <div>
+                    <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-display font-bold text-sm text-slate-900 dark:text-white">
+                        <h4 className="font-display font-black text-sm text-slate-900 dark:text-white">
                           {item.foodName}
                         </h4>
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300">
                           {item.category}
                         </span>
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-slate-100 text-slate-700 border border-slate-300">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${
+                            item.status === 'available'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-400'
+                              : item.status === 'reserved'
+                              ? 'bg-amber-50 text-amber-800 border-amber-400'
+                              : item.status === 'collected'
+                              ? 'bg-blue-50 text-blue-800 border-blue-400'
+                              : 'bg-rose-50 text-rose-800 border-rose-400'
+                          }`}
+                        >
                           {item.status}
                         </span>
+                        <span className="font-mono font-bold text-xs text-emerald-800 dark:text-emerald-300">
+                          {item.quantity} {item.unit}
+                        </span>
                       </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                        Provider: <strong>{provider?.name || 'Kitchen'}</strong> &bull; Quantity: <strong>{item.quantity} {item.unit}</strong> &bull; Location: {item.pickupLocation}
-                      </p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">
-                        Posted: {new Date(item.createdAt).toLocaleString()} &bull; Expires: {new Date(item.expiryDate).toLocaleDateString()}
+
+                      <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-3 flex-wrap">
+                        <span>
+                          Donor: <strong className="text-slate-900 dark:text-white">{providerName}</strong>
+                        </span>
+                        {provider?.phone && <span>&bull; {provider.phone}</span>}
+                        <span className="flex items-center gap-1">
+                          <FiMapPin size={11} className="text-amber-600 shrink-0" />
+                          <span className="truncate max-w-xs">{item.pickupLocation}</span>
+                        </span>
+                      </div>
+
+                      <p className="text-[10px] text-slate-400 pt-0.5">
+                        Posted: {new Date(item.createdAt).toLocaleString()} &bull; Pickup Until: {new Date(item.availableUntil).toLocaleDateString()} &bull; Expiry: {new Date(item.expiryDate).toLocaleDateString()}
                       </p>
                     </div>
 
+                    {/* Admin Delete Action Button */}
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
-                        onClick={() => handleDeleteListing(item._id)}
-                        className="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-300 text-xs font-bold flex items-center gap-1 transition-colors"
+                        onClick={() => handleDeleteListing(item._id, item.foodName)}
+                        disabled={isDeleting}
+                        className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                        title="Permanently remove this listing from platform"
                       >
-                        <FiTrash2 size={12} /> Remove
+                        <FiTrash2 size={13} className={isDeleting ? 'animate-spin' : ''} />
+                        <span>{isDeleting ? 'Removing...' : 'Delete Listing'}</span>
                       </button>
                     </div>
                   </div>
@@ -739,6 +851,14 @@ const AdminDashboard: React.FC = () => {
               })}
             </div>
           )}
+
+          {/* Governance Notice */}
+          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
+            <FiShield className="text-emerald-700 shrink-0" size={13} />
+            <span>
+              <strong>Municipal Admin Authority:</strong> Administrators can remove invalid or non-compliant surplus postings. Food quantity adjustments are managed strictly by food donors.
+            </span>
+          </div>
         </div>
       )}
 

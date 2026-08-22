@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const phoneRegex = /^\+[1-9]\d{1,14}$/;
+const phoneRegex = /^(?:(?:\+92|0092|92)?3[0-9]{9}|03[0-9]{9})$/;
 
 /**
  * Read-only User model for core-service.
@@ -22,10 +22,11 @@ const userSchema = new Schema(
             required: true,
             validate: {
                 validator: function (v) {
-                    const cleaned = v.replace(/[\s-]/g, '');
+                    if (!v) return false;
+                    const cleaned = v.replace(/[\s\-\(\)\.]/g, '');
                     return phoneRegex.test(cleaned);
                 },
-                message: props => `${props.value} is not a valid E.164 phone number!`
+                message: props => `${props.value} is not a valid Pakistani mobile number!`
             }
         },
         isVerified: { type: Boolean, default: false },

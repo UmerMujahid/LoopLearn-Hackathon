@@ -54,8 +54,8 @@ User Question:
 {question}
 
 Task:
-Provide a concise, practical, and authoritative answer to the user's question based on the Knowledge Base.
-Format with clear bullet points and bold key temperatures/timelines."""
+Provide a concise, practical, medium-length answer (approx. 100 to 180 words max) to the user's question based on the Knowledge Base.
+Format with clean bullet points and bold key temperatures/timelines. Avoid long paragraphs."""
             )
         ])
 

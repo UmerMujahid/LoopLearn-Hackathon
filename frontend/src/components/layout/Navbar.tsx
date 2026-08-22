@@ -7,6 +7,7 @@ import {
   FiGrid,
   FiLogOut,
   FiChevronDown,
+  FiUser,
 } from 'react-icons/fi';
 import { BoxAvatarOverlay } from '../common/BoxAvatarOverlay';
 import { FoodLoopLogo } from '../common/FoodLoopLogo';
@@ -264,6 +265,19 @@ export const Navbar: React.FC = () => {
                       <div className="text-[10px] text-slate-400 truncate mt-0.5">{authUser.email}</div>
                     </div>
                     <div className="py-1">
+                      {authUser.role === 'organization' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowUserDropdown(false);
+                            navigate('/organization/profile');
+                          }}
+                          className="w-full text-left px-2.5 py-2 rounded-lg bg-amber-50/80 hover:bg-amber-100/80 text-amber-900 font-bold flex items-center gap-2 mb-1 border border-amber-200"
+                        >
+                          <FiUser className="text-amber-700" size={13} />
+                          <span>Manage Profile</span>
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => { setShowUserDropdown(false); navigate('/login'); }}
@@ -340,14 +354,26 @@ export const Navbar: React.FC = () => {
           }}
         >
           {isAuthenticated && authUser && (
-            <Link
-              to={authUser.role === 'provider' ? '/provider' : authUser.role === 'organization' ? '/organization' : '/admin'}
-              onClick={() => setShowMobileMenu(false)}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-700 text-white rounded-xl font-display font-bold text-sm shadow-pop-sm"
-            >
-              <FiGrid className="text-amber-300" />
-              <span>Go to Dashboard</span>
-            </Link>
+            <>
+              <Link
+                to={authUser.role === 'provider' ? '/provider' : authUser.role === 'organization' ? '/organization' : '/admin'}
+                onClick={() => setShowMobileMenu(false)}
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-700 text-white rounded-xl font-display font-bold text-sm shadow-pop-sm"
+              >
+                <FiGrid className="text-amber-300" />
+                <span>Go to Dashboard</span>
+              </Link>
+              {authUser.role === 'organization' && (
+                <Link
+                  to="/organization/profile"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-xl font-display font-bold text-sm"
+                >
+                  <FiUser className="text-amber-800" />
+                  <span>Manage Profile</span>
+                </Link>
+              )}
+            </>
           )}
 
           {isLandingPage ? (

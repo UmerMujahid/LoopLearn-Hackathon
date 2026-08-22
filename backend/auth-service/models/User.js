@@ -3,7 +3,7 @@ const bcryptjs = require("bcryptjs");
 const Schema = mongoose.Schema;
 const jwt = require("jsonwebtoken");
 
-const phoneRegex = /^\+[1-9]\d{1,14}$/;
+const phoneRegex = /^(?:(?:\+92|0092|92)?3[0-9]{9}|03[0-9]{9})$/;
 
 const userSchema = new Schema(
     {
@@ -51,10 +51,11 @@ const userSchema = new Schema(
             required: true,
             validate: {
                 validator: function (v) {
-                    const cleaned = v.replace(/[\s-]/g, '');
+                    if (!v) return false;
+                    const cleaned = v.replace(/[\s\-\(\)\.]/g, '');
                     return phoneRegex.test(cleaned);
                 },
-                message: props => `${props.value}  is not a valid E.164 phone number! Example: +12025550143`
+                message: props => `${props.value} is not a valid Pakistani mobile number! Example: 03001234567 or +923001234567`
             }
         },
 

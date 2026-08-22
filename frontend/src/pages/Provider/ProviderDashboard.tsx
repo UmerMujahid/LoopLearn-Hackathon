@@ -48,6 +48,11 @@ const ProviderDashboard: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  // Quantity edit state (Donors can only update quantity of their listings)
+  const [editingQuantityId, setEditingQuantityId] = useState<string | null>(null);
+  const [editQuantityValue, setEditQuantityValue] = useState<string>('');
+  const [quantitySaving, setQuantitySaving] = useState(false);
+
   // Action states
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -163,6 +168,40 @@ const ProviderDashboard: React.FC = () => {
     }
   };
 
+  const handleStartEditQuantity = (listing: FoodListing) => {
+    setEditingQuantityId(listing._id);
+    setEditQuantityValue(String(listing.quantity));
+  };
+
+  const handleCancelEditQuantity = () => {
+    setEditingQuantityId(null);
+    setEditQuantityValue('');
+  };
+
+  const handleSaveQuantity = async (listingId: string) => {
+    const parsedQty = Number(editQuantityValue);
+    if (isNaN(parsedQty) || parsedQty <= 0) {
+      showToast('Please enter a valid quantity greater than 0', 'error');
+      return;
+    }
+
+    setQuantitySaving(true);
+    try {
+      await foodService.updateListing(listingId, { quantity: parsedQty });
+      showToast(`Quantity updated to ${parsedQty}!`);
+      setMyListings((prev) =>
+        prev.map((l) => (l._id === listingId ? { ...l, quantity: parsedQty } : l))
+      );
+      setEditingQuantityId(null);
+      setEditQuantityValue('');
+      await fetchStats();
+    } catch (err: any) {
+      showToast(err?.response?.data?.message || 'Failed to update quantity', 'error');
+    } finally {
+      setQuantitySaving(false);
+    }
+  };
+
   const handleApproveRequest = async (requestId: string) => {
     setActionLoading(`app-${requestId}`);
     try {
@@ -238,6 +277,13 @@ const ProviderDashboard: React.FC = () => {
 
   const pendingRequests = requests.filter((r) => r.status === 'pending');
 
+  const navigateToView = (view: 'listings' | 'claims' | 'create' | 'ai-insights') => {
+    setActiveView(view);
+    setTimeout(() => {
+      document.getElementById('dashboard-views-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'available':
@@ -291,7 +337,7 @@ const ProviderDashboard: React.FC = () => {
         <div className="flex items-center gap-3 shrink-0 flex-wrap">
           <button
             type="button"
-            onClick={() => setActiveView(activeView === 'create' ? 'listings' : 'create')}
+            onClick={() => navigateToView(activeView === 'create' ? 'listings' : 'create')}
             className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-black text-xs border-2 border-emerald-950 shadow-pop-emerald flex items-center gap-2 transition-all active:scale-95"
           >
             <FiPlus size={16} />
@@ -300,7 +346,7 @@ const ProviderDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setActiveView('ai-insights');
+              navigateToView('ai-insights');
               if (!aiResult) handleGenerateAIRecommendations();
             }}
             className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-emerald-950 font-display font-black text-xs border-2 border-emerald-950 shadow-pop-gold flex items-center gap-2 transition-all active:scale-95"
@@ -373,7 +419,7 @@ const ProviderDashboard: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={() => setActiveView('create')}
+                  onClick={() => navigateToView('create')}
                   className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-white transition-colors group/btn shrink-0"
                 >
                   <span>Post New Batch</span>
@@ -413,7 +459,7 @@ const ProviderDashboard: React.FC = () => {
                   <span>Available on community live board</span>
                   <button
                     type="button"
-                    onClick={() => setActiveView('listings')}
+                    onClick={() => navigateToView('listings')}
                     className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
                   >
                     View <FiArrowRight size={10} />
@@ -450,7 +496,7 @@ const ProviderDashboard: React.FC = () => {
                   <span>Claims pending your confirmation</span>
                   <button
                     type="button"
-                    onClick={() => setActiveView('claims')}
+                    onClick={() => navigateToView('claims')}
                     className="text-amber-600 dark:text-amber-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
                   >
                     Review <FiArrowRight size={10} />
@@ -463,11 +509,11 @@ const ProviderDashboard: React.FC = () => {
       </div>
 
       {/* Main View Navigation Tabs — Centered */}
-      <div className="flex justify-center w-full my-2 sm:my-3">
+      <div id="dashboard-views-section" className="flex justify-center w-full my-2 sm:my-3 scroll-mt-24">
         <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#f4efe6] dark:bg-[#14241a] border-2 border-emerald-950/20 w-fit flex-wrap justify-center shadow-soft">
           <button
             type="button"
-            onClick={() => setActiveView('listings')}
+            onClick={() => navigateToView('listings')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
               activeView === 'listings'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -478,7 +524,7 @@ const ProviderDashboard: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveView('claims')}
+            onClick={() => navigateToView('claims')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 relative ${
               activeView === 'claims'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -494,7 +540,7 @@ const ProviderDashboard: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveView('create')}
+            onClick={() => navigateToView('create')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
               activeView === 'create'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -506,7 +552,7 @@ const ProviderDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setActiveView('ai-insights');
+              navigateToView('ai-insights');
               if (!aiResult) handleGenerateAIRecommendations();
             }}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
@@ -621,14 +667,74 @@ const ProviderDashboard: React.FC = () => {
                       {listing.description || 'Nutritious surplus ready for community pickup and safe consumption.'}
                     </p>
 
+                    {/* Quantity with inline editing capability for donors */}
+                    <div className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 mt-3 mb-2">
+                      {editingQuantityId === listing._id ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                            <span>Update Quantity:</span>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">{listing.unit}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="number"
+                              min="1"
+                              step="any"
+                              value={editQuantityValue}
+                              onChange={(e) => setEditQuantityValue(e.target.value)}
+                              placeholder="New quantity..."
+                              className="w-full px-2.5 py-1 rounded-xl border-2 border-emerald-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-bold text-xs outline-none shadow-sm"
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveQuantity(listing._id)}
+                              disabled={quantitySaving}
+                              className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1 transition-colors shrink-0 shadow-sm disabled:opacity-50"
+                              title="Save quantity"
+                            >
+                              <FiCheck size={12} /> Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCancelEditQuantity}
+                              disabled={quantitySaving}
+                              className="p-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-300 font-bold text-[11px] transition-colors shrink-0"
+                              title="Cancel"
+                            >
+                              <FiX size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200">
+                          <span className="text-xs">Quantity:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-emerald-700 dark:text-emerald-400 font-black text-sm">
+                              {listing.quantity} {listing.unit}
+                            </span>
+                            {listing.status !== 'collected' ? (
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditQuantity(listing)}
+                                className="px-2 py-0.5 rounded-lg text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors inline-flex items-center gap-1 text-[10px] font-extrabold border border-emerald-300 dark:border-emerald-800"
+                                title="Update surplus quantity"
+                              >
+                                <FiEdit3 size={11} />
+                                <span>Edit</span>
+                              </button>
+                            ) : (
+                              <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                                Locked
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     {/* Metadata items */}
-                    <div className="mt-4 space-y-1.5 text-xs text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/80 pt-3">
-                      <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200">
-                        <span>Quantity:</span>
-                        <span className="text-emerald-700 dark:text-emerald-400 font-black">
-                          {listing.quantity} {listing.unit}
-                        </span>
-                      </div>
+                    <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/80 pt-2.5">
                       <div className="flex items-center gap-1.5 text-[11px]">
                         <FiMapPin className="text-amber-600 shrink-0" />
                         <span className="truncate">{listing.pickupLocation}</span>

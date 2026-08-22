@@ -10,6 +10,7 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import ProviderDashboard from './pages/Provider/ProviderDashboard';
 import OrganizationDashboard from './pages/Organization/OrganizationDashboard';
+import ManageProfile from './pages/Organization/ManageProfile';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
 import GroqApiKeyModal from './components/common/GroqApiKeyModal';
@@ -52,6 +53,15 @@ export const AppContent: React.FC = () => {
               element={
                 <ProtectedRoute allowedRoles={['provider']}>
                   <ProviderDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/organization/profile"
+              element={
+                <ProtectedRoute allowedRoles={['organization']}>
+                  <ManageProfile />
                 </ProtectedRoute>
               }
             />

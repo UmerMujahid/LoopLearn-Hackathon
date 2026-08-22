@@ -75,7 +75,22 @@ const getOrganizationStats = async (req, res) => {
 const getAdminStats = async (req, res) => {
     try {
         const totalListings = await FoodListing.countDocuments();
-        const foodRescued = await FoodListing.countDocuments({ status: 'collected' });
+
+        // Count collected requests (actual rescues made) and ensure status sync
+        const collectedRequests = await Request.find({ status: 'collected' }).select('foodListingId');
+        const collectedListingIds = collectedRequests.map(r => r.foodListingId).filter(Boolean);
+
+        if (collectedListingIds.length > 0) {
+            await FoodListing.updateMany(
+                { _id: { $in: collectedListingIds }, status: { $ne: 'collected' } },
+                { $set: { status: 'collected' } }
+            );
+        }
+
+        const collectedRequestsCount = collectedRequests.length;
+        const collectedListingsCount = await FoodListing.countDocuments({ status: 'collected' });
+        const foodRescued = Math.max(collectedRequestsCount, collectedListingsCount);
+
         const activeListings = await FoodListing.countDocuments({ status: 'available' });
         const expiredListings = await FoodListing.countDocuments({ status: 'expired' });
 
@@ -90,6 +105,7 @@ const getAdminStats = async (req, res) => {
         return res.status(200).json({
             totalListings,
             foodRescued,
+            collectedRequests: collectedRequestsCount,
             activeListings,
             expiredListings,
             activeOrgs,

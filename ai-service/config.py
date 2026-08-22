@@ -23,6 +23,7 @@ langchain_llm = ChatGroq(
     model_name=GROQ_MODEL,
     groq_api_key=GROQ_API_KEY,
     temperature=0.2,
+    max_tokens=4000,
     max_retries=2
 ) if GROQ_API_KEY else None
 
@@ -36,6 +37,7 @@ def get_groq_llm(api_key: str = ""):
         model_name=GROQ_MODEL,
         groq_api_key=key,
         temperature=0.2,
+        max_tokens=4000,
         max_retries=2
     )
 

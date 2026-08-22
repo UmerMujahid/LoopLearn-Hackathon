@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useFood } from '../../context/FoodContext';
 import { BoxAvatarOverlay } from '../../components/common/BoxAvatarOverlay';
@@ -27,6 +28,7 @@ import {
   FiX,
   FiSend,
   FiArrowRight,
+  FiUser,
 } from 'react-icons/fi';
 
 type OrgView = 'browse' | 'claims' | 'ai-match';
@@ -164,6 +166,13 @@ const OrganizationDashboard: React.FC = () => {
   const collectedFood = organizationStats?.collectedFood ?? myClaims.filter((r) => r.status === 'collected').length;
   const co2Saved = organizationStats?.co2SavedKg ?? 0;
 
+  const navigateToView = (view: 'browse' | 'claims' | 'ai-match') => {
+    setActiveView(view);
+    setTimeout(() => {
+      document.getElementById('dashboard-views-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
+  };
+
   return (
     <div className="space-y-8 animate-slide-up pb-12">
       {/* Toast alert */}
@@ -226,16 +235,22 @@ const OrganizationDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3 shrink-0 flex-wrap">
+          <Link
+            to="/organization/profile"
+            className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 text-slate-800 dark:text-slate-200 font-display font-black text-xs border-2 border-emerald-950 shadow-pop-sm flex items-center gap-2 transition-all active:scale-95"
+          >
+            <FiUser size={15} className="text-amber-600" /> Manage Profile
+          </Link>
           <button
             type="button"
-            onClick={() => setActiveView('browse')}
+            onClick={() => navigateToView('browse')}
             className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-black text-xs border-2 border-emerald-950 shadow-pop-emerald flex items-center gap-2 transition-all active:scale-95"
           >
-            <FiSearch size={16} /> Browse Food Surplus
+            <FiSearch size={16} /> Browse Surplus
           </button>
           <button
             type="button"
-            onClick={() => setActiveView('ai-match')}
+            onClick={() => navigateToView('ai-match')}
             className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-emerald-950 font-display font-black text-xs border-2 border-emerald-950 shadow-pop-gold flex items-center gap-2 transition-all active:scale-95"
           >
             <FiCpu size={16} /> AI Food Matcher
@@ -302,7 +317,7 @@ const OrganizationDashboard: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={() => setActiveView('ai-match')}
+                  onClick={() => navigateToView('ai-match')}
                   className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-white transition-colors group/btn shrink-0"
                 >
                   <FiCpu size={12} />
@@ -343,7 +358,7 @@ const OrganizationDashboard: React.FC = () => {
                   <span>Filtered by fresh safety window</span>
                   <button
                     type="button"
-                    onClick={() => setActiveView('browse')}
+                    onClick={() => navigateToView('browse')}
                     className="text-amber-600 dark:text-amber-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
                   >
                     Browse <FiArrowRight size={10} />
@@ -380,7 +395,7 @@ const OrganizationDashboard: React.FC = () => {
                   <span>{pendingRequests} awaiting donor dispatch</span>
                   <button
                     type="button"
-                    onClick={() => setActiveView('claims')}
+                    onClick={() => navigateToView('claims')}
                     className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
                   >
                     Track Claims <FiArrowRight size={10} />
@@ -393,11 +408,11 @@ const OrganizationDashboard: React.FC = () => {
       </div>
 
       {/* Main View Navigation Tabs — Centered */}
-      <div className="flex justify-center w-full my-2 sm:my-3">
+      <div id="dashboard-views-section" className="flex justify-center w-full my-2 sm:my-3 scroll-mt-24">
         <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#f4efe6] dark:bg-[#14241a] border-2 border-emerald-950/20 w-fit flex-wrap justify-center shadow-soft">
           <button
             type="button"
-            onClick={() => setActiveView('browse')}
+            onClick={() => navigateToView('browse')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
               activeView === 'browse'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -408,7 +423,7 @@ const OrganizationDashboard: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveView('claims')}
+            onClick={() => navigateToView('claims')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 relative ${
               activeView === 'claims'
                 ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
@@ -424,7 +439,7 @@ const OrganizationDashboard: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveView('ai-match')}
+            onClick={() => navigateToView('ai-match')}
             className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
               activeView === 'ai-match'
                 ? 'bg-amber-500 text-slate-950 border-2 border-emerald-950 shadow-pop-sm'

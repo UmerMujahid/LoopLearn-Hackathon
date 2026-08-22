@@ -56,13 +56,17 @@ const getListings = async (req, res) => {
         const { category, status, location, providerId } = req.query;
         const filter = {};
 
-        if (category) filter.category = category;
-        if (status) {
+        if (category && category !== 'all') {
+            filter.category = category;
+        }
+        
+        if (status && status !== 'all') {
             filter.status = status;
-        } else if (!providerId) {
-            // Default to available listings when browsing general feed
+        } else if (!status && !providerId && req.user && req.user.role !== 'admin') {
+            // Default to available listings when browsing general feed as a non-admin
             filter.status = 'available';
         }
+
         if (providerId) filter.providerId = providerId;
         if (location) {
             filter.pickupLocation = { $regex: location, $options: 'i' };
@@ -107,9 +111,9 @@ const getListingById = async (req, res) => {
     }
 };
 
-// @desc    Update a food listing
+// @desc    Update a food listing (Donors can only update quantity)
 // @route   PUT /food/:id
-// @access  Provider (Owner)
+// @access  Provider (Owner) / Admin
 const updateListing = async (req, res) => {
     try {
         const listing = await FoodListing.findById(req.params.id);
@@ -122,30 +126,49 @@ const updateListing = async (req, res) => {
             return res.status(403).json({ message: 'Unauthorized to update this listing' });
         }
 
-        const allowedUpdates = [
-            'foodName',
-            'category',
-            'quantity',
-            'unit',
-            'pickupLocation',
-            'pickupLat',
-            'pickupLng',
-            'availableFrom',
-            'availableUntil',
-            'expiryDate',
-            'description'
-        ];
-
-        allowedUpdates.forEach((field) => {
-            if (req.body[field] !== undefined) {
-                listing[field] = req.body[field];
+        // Provider (Donor) restriction: Can only update quantity
+        if (req.user.role !== 'admin') {
+            if (listing.status === 'collected') {
+                return res.status(400).json({ message: 'Cannot update quantity of already collected food surplus' });
             }
-        });
+
+            if (req.body.quantity === undefined) {
+                return res.status(400).json({ message: 'Food donors are only permitted to update the quantity of their listings' });
+            }
+
+            const newQty = Number(req.body.quantity);
+            if (isNaN(newQty) || newQty <= 0) {
+                return res.status(400).json({ message: 'Quantity must be a valid number greater than 0' });
+            }
+
+            listing.quantity = newQty;
+        } else {
+            // Admin: Full update capability
+            const allowedUpdates = [
+                'foodName',
+                'category',
+                'quantity',
+                'unit',
+                'pickupLocation',
+                'pickupLat',
+                'pickupLng',
+                'availableFrom',
+                'availableUntil',
+                'expiryDate',
+                'description'
+            ];
+
+            allowedUpdates.forEach((field) => {
+                if (req.body[field] !== undefined) {
+                    listing[field] = req.body[field];
+                }
+            });
+        }
 
         await listing.save();
 
         return res.status(200).json({
-            message: 'Food listing updated successfully',
+            message: 'Food listing quantity updated successfully',
             listing
         });
     } catch (error) {

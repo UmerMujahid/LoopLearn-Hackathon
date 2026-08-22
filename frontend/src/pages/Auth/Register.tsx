@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FiUser, FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff, FiPhone, FiMapPin, FiBriefcase, FiCoffee, FiUsers } from 'react-icons/fi';
+import { FiUser, FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff, FiPhone, FiMapPin, FiBriefcase, FiCoffee, FiUsers, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 
 type Role = 'provider' | 'organization' | 'admin';
+
+const isPakistaniPhone = (val: string): boolean => {
+  const cleaned = val.replace(/[\s\-\(\)\.]/g, '');
+  return /^(?:(?:\+92|0092|92)?3[0-9]{9}|03[0-9]{9})$/.test(cleaned);
+};
 
 const Register: React.FC = () => {
   const { role: urlRole } = useParams<{ role?: string }>();
@@ -23,6 +28,17 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!phone.trim()) {
+      setError('Phone number is required.');
+      return;
+    }
+
+    if (!isPakistaniPhone(phone)) {
+      setError('Please enter a valid Pakistani mobile number (e.g. 0300-1234567 or +92 300 1234567).');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -154,15 +170,42 @@ const Register: React.FC = () => {
 
           {/* Phone */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Phone Number</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                Pakistani Mobile Number <span className="text-rose-500">*</span>
+              </label>
+              {phone.trim() && (
+                isPakistaniPhone(phone) ? (
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <FiCheck size={12} /> Valid PK Mobile
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <FiAlertCircle size={12} /> 03XX-XXXXXXX or +92 3XX...
+                  </span>
+                )
+              )}
+            </div>
             <div className="relative">
               <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
-                type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                placeholder="+92 300 1234567"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-emerald-900/15 dark:border-emerald-700/30 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-sm"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="0300 1234567 or +92 300 1234567"
+                required
+                className={`w-full pl-10 pr-4 py-2.5 rounded-xl border-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 outline-none transition-all text-sm ${
+                  phone.trim()
+                    ? isPakistaniPhone(phone)
+                      ? 'border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20'
+                      : 'border-amber-500 focus:border-amber-600 focus:ring-2 focus:ring-amber-500/20'
+                    : 'border-emerald-900/15 dark:border-emerald-700/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+                }`}
               />
             </div>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+              Supports 11-digit local format (<code>03001234567</code>) or international (<code>+923001234567</code>).
+            </p>
           </div>
 
           {/* Address */}
