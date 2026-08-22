@@ -104,12 +104,12 @@ export const BoxAvatarOverlay: React.FC<BoxAvatarOverlayProps> = ({
         <span className="relative z-10">{config.icon(s)}</span>
       </div>
 
-      {/* Optional Badge */}
+      {/* Optional Badge — Centered */}
       {showBadge && (
         <span
           className={`
-            text-[9px] font-extrabold uppercase tracking-wide
-            px-2 py-0.5 rounded-full border
+            text-[9px] font-extrabold uppercase tracking-wide text-center whitespace-nowrap
+            px-2.5 py-0.5 rounded-full border inline-flex items-center justify-center
             ${config.badgeBg}
           `}
         >

@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useFood } from '../../context/FoodContext';
 import { BoxAvatarOverlay } from '../../components/common/BoxAvatarOverlay';
 import { TiltCard } from '../../components/common/TiltCard';
+import { MarkdownRenderer } from '../../components/common/MarkdownRenderer';
 import { foodService } from '../../services/foodService';
 import { requestService } from '../../services/requestService';
 import { aiService, RecommendationResponse } from '../../services/aiService';
@@ -312,21 +313,17 @@ const ProviderDashboard: React.FC = () => {
 
       {/* Asymmetric Command Center KPI Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
-        {/* Main Hero Impact Card (Span 7) */}
+        {/* Main Hero Impact Card (Span 7) — Light Touch */}
         <div className="lg:col-span-7 flex flex-col justify-center">
           <TiltCard intensity={4} className="h-full">
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-800 via-emerald-900 to-slate-800 text-white border-2 border-emerald-400/40 shadow-pop-sm flex flex-col justify-between h-full relative overflow-hidden group">
-              {/* Background ambient lighting */}
-              <div className="absolute -top-16 -right-16 w-48 h-48 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700" />
-              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-amber-400/15 rounded-full blur-2xl pointer-events-none" />
-
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#fdfcf7] dark:bg-[#0f1a14] text-slate-900 dark:text-white border-2 border-emerald-950 dark:border-emerald-800 shadow-pop-sm flex flex-col justify-between h-full relative group">
               <div>
-                {/* Header Badge (Pulse removed) */}
+                {/* Header Badge */}
                 <div className="flex items-center justify-between gap-2 flex-wrap mb-2.5">
-                  <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-emerald-300">
+                  <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-emerald-800 dark:text-emerald-300">
                     Kitchen Sustainability Command
                   </span>
-                  <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-bold text-amber-300 border border-white/10">
+                  <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                     <FiAward size={11} />
                     <span>Zero-Waste Tier 1</span>
                   </div>
@@ -334,26 +331,26 @@ const ProviderDashboard: React.FC = () => {
 
                 {/* Main Highlight Metric Split */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-1">
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="text-[10px] font-semibold text-emerald-200/80 flex items-center gap-1 mb-0.5">
-                      <FiCheckCircle className="text-emerald-400" size={12} /> Rescued Meals Delivered
+                  <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-[#14241a] border border-emerald-200 dark:border-emerald-800/60">
+                    <div className="text-[10px] font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1 mb-0.5">
+                      <FiCheckCircle className="text-emerald-600 dark:text-emerald-400" size={12} /> Rescued Meals Delivered
                     </div>
-                    <div className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight">
+                    <div className="font-display font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">
                       {statsLoading ? '...' : String(collectedListings)}
                     </div>
-                    <div className="text-[9px] text-emerald-300/70 mt-0.5 font-medium">
+                    <div className="text-[9px] text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
                       Portions distributed to verified shelters
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="text-[10px] font-semibold text-amber-200/80 flex items-center gap-1 mb-0.5">
-                      <FiDroplet className="text-amber-400" size={12} /> CO₂ Avoided from Landfill
+                  <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-[#14241a] border border-amber-200 dark:border-amber-800/60">
+                    <div className="text-[10px] font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1 mb-0.5">
+                      <FiDroplet className="text-amber-600 dark:text-amber-400" size={12} /> CO₂ Avoided from Landfill
                     </div>
-                    <div className="font-display font-black text-2xl sm:text-3xl text-amber-300 tracking-tight">
+                    <div className="font-display font-black text-2xl sm:text-3xl text-amber-800 dark:text-amber-300 tracking-tight">
                       {statsLoading ? '...' : `${co2Saved} kg`}
                     </div>
-                    <div className="text-[9px] text-amber-200/70 mt-0.5 font-medium">
+                    <div className="text-[9px] text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
                       ~{(co2Saved * 4.2).toFixed(0)} km vehicle emissions offset
                     </div>
                   </div>
@@ -361,23 +358,23 @@ const ProviderDashboard: React.FC = () => {
               </div>
 
               {/* Bottom Eco Milestone Bar */}
-              <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="mt-3 pt-2.5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap text-[10px]">
-                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-800">
                     SDG 12.3
                   </span>
-                  <span className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                  <span className="px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-bold border border-amber-300 dark:border-amber-800">
                     SDG 13.2
                   </span>
-                  <span className="text-[10px] text-slate-300 font-medium">
-                    Total Solid Waste Diverted: <strong className="text-white">{statsLoading ? '...' : `${wasteReduced} kg`}</strong>
+                  <span className="text-[10px] text-slate-700 dark:text-slate-300 font-medium">
+                    Total Solid Waste Diverted: <strong className="text-emerald-950 dark:text-white">{statsLoading ? '...' : `${wasteReduced} kg`}</strong>
                   </span>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setActiveView('create')}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300 hover:text-white transition-colors group/btn shrink-0"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-white transition-colors group/btn shrink-0"
                 >
                   <span>Post New Batch</span>
                   <FiArrowRight size={11} className="group-hover/btn:translate-x-0.5 transition-transform" />
@@ -1030,13 +1027,12 @@ const ProviderDashboard: React.FC = () => {
               )}
 
               {/* AI Markdown Advice */}
-              <div className="p-6 rounded-2xl bg-[#faf8f4] dark:bg-slate-900 border-2 border-emerald-950/15 dark:border-emerald-800/30 text-xs leading-relaxed text-slate-800 dark:text-slate-200 space-y-2">
-                <h4 className="font-display font-black text-sm text-emerald-900 dark:text-emerald-300 mb-2">
+              <div className="p-6 rounded-2xl bg-[#faf8f4] dark:bg-slate-900 border-2 border-emerald-950/15 dark:border-emerald-800/30 text-xs leading-relaxed text-slate-800 dark:text-slate-200 space-y-3">
+                <h4 className="font-display font-black text-sm text-emerald-900 dark:text-emerald-300 pb-2 border-b border-emerald-900/10 dark:border-emerald-700/20 flex items-center gap-2">
+                  <FiZap className="text-amber-500" />
                   Actionable Kitchen Optimization Plan
                 </h4>
-                <div className="whitespace-pre-line">
-                  {aiResult.recommendations}
-                </div>
+                <MarkdownRenderer content={aiResult.recommendations} />
               </div>
             </div>
           ) : (

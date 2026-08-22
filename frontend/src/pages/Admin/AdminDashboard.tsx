@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { BoxAvatarOverlay } from '../../components/common/BoxAvatarOverlay';
 import { TiltCard } from '../../components/common/TiltCard';
+import { MarkdownRenderer } from '../../components/common/MarkdownRenderer';
 import { statsService } from '../../services/statsService';
 import { authService } from '../../services/authService';
 import { foodService } from '../../services/foodService';
@@ -245,21 +246,17 @@ const AdminDashboard: React.FC = () => {
 
       {/* Asymmetric Command Center KPI Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
-        {/* Main Hero Municipal Governance Card (Span 7) */}
+        {/* Main Hero Municipal Governance Card (Span 7) — Light Touch */}
         <div className="lg:col-span-7 flex flex-col justify-center">
           <TiltCard intensity={4} className="h-full">
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-800 via-slate-800 to-emerald-900 text-white border-2 border-indigo-400/40 shadow-pop-sm flex flex-col justify-between h-full relative overflow-hidden group">
-              {/* Ambient lighting effects */}
-              <div className="absolute -top-16 -right-16 w-48 h-48 bg-indigo-400/20 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700" />
-              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none" />
-
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#fdfcf7] dark:bg-[#0f1a14] text-slate-900 dark:text-white border-2 border-emerald-950 dark:border-emerald-800 shadow-pop-sm flex flex-col justify-between h-full relative group">
               <div>
-                {/* Header Badge (Pulse removed) */}
+                {/* Header Badge */}
                 <div className="flex items-center justify-between gap-2 flex-wrap mb-2.5">
-                  <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-indigo-200">
+                  <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-emerald-800 dark:text-emerald-300">
                     Citywide Zero-Waste Directorate
                   </span>
-                  <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-bold text-emerald-200 border border-white/20">
+                  <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">
                     <FiShield size={11} />
                     <span>Municipal ESG Standard</span>
                   </div>
@@ -267,26 +264,26 @@ const AdminDashboard: React.FC = () => {
 
                 {/* Main Highlight Metric Split */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-1">
-                  <div className="p-3 rounded-xl bg-black/20 border border-white/15 backdrop-blur-sm">
-                    <div className="text-[10px] font-semibold text-emerald-200 flex items-center gap-1 mb-0.5">
-                      <FiCheckCircle className="text-emerald-300" size={12} /> Total Food Rescued
+                  <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-[#14241a] border border-emerald-200 dark:border-emerald-800/60">
+                    <div className="text-[10px] font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1 mb-0.5">
+                      <FiCheckCircle className="text-emerald-600 dark:text-emerald-400" size={12} /> Total Food Rescued
                     </div>
-                    <div className="font-display font-black text-2xl sm:text-3xl text-emerald-300 tracking-tight">
+                    <div className="font-display font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">
                       {statsLoading ? '...' : String(foodRescued)}
                     </div>
-                    <div className="text-[9px] text-emerald-100/80 mt-0.5 font-medium">
+                    <div className="text-[9px] text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
                       Meals diverted across all city providers
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-black/20 border border-white/15 backdrop-blur-sm">
-                    <div className="text-[10px] font-semibold text-indigo-200 flex items-center gap-1 mb-0.5">
-                      <FiDroplet className="text-indigo-300" size={12} /> Citywide GHG Mitigated
+                  <div className="p-3 rounded-xl bg-indigo-50/70 dark:bg-[#14241a] border border-indigo-200 dark:border-indigo-800/60">
+                    <div className="text-[10px] font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1 mb-0.5">
+                      <FiDroplet className="text-indigo-600 dark:text-indigo-400" size={12} /> Citywide GHG Mitigated
                     </div>
-                    <div className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight">
+                    <div className="font-display font-black text-2xl sm:text-3xl text-indigo-800 dark:text-indigo-300 tracking-tight">
                       {statsLoading ? '...' : `${totalCo2} kg`}
                     </div>
-                    <div className="text-[9px] text-indigo-100/80 mt-0.5 font-medium">
+                    <div className="text-[9px] text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
                       {totalWaste} kg landfill solid waste avoided
                     </div>
                   </div>
@@ -294,16 +291,16 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               {/* Bottom Municipal Milestone Bar */}
-              <div className="mt-3 pt-2.5 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="mt-3 pt-2.5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap text-[10px]">
-                  <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/30 text-indigo-200 font-bold border border-indigo-400/30">
+                  <span className="px-1.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 font-bold border border-indigo-300 dark:border-indigo-800">
                     UN SDG 11.6
                   </span>
-                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/30 text-emerald-200 font-bold border border-emerald-400/30">
+                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-800">
                     UN SDG 12.3
                   </span>
-                  <span className="text-[10px] text-slate-200 font-medium">
-                    Verified Nodes: <strong className="text-white">{statsLoading ? '...' : activeOrgs}</strong>
+                  <span className="text-[10px] text-slate-700 dark:text-slate-300 font-medium">
+                    Verified Nodes: <strong className="text-emerald-950 dark:text-white">{statsLoading ? '...' : activeOrgs}</strong>
                   </span>
                 </div>
 
@@ -313,7 +310,7 @@ const AdminDashboard: React.FC = () => {
                     setActiveView('overview');
                     handleGenerateAIReport();
                   }}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 hover:text-white transition-colors group/btn shrink-0"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-300 hover:text-emerald-950 dark:hover:text-white transition-colors group/btn shrink-0"
                 >
                   <FiZap size={12} />
                   <span>Generate ESG Report</span>
@@ -532,11 +529,12 @@ const AdminDashboard: React.FC = () => {
                   Groq LLM is synthesizing platform-wide ESG metrics, carbon emissions averted, and SDG compliance...
                 </div>
               ) : aiReport ? (
-                <div className="mt-4 p-5 rounded-2xl bg-[#faf8f4] dark:bg-slate-900 border-2 border-emerald-950/15 dark:border-emerald-800/30 text-xs leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-line space-y-2 max-h-96 overflow-y-auto">
-                  <div className="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 mb-1">
-                    Executive Briefing
+                <div className="mt-4 p-5 rounded-2xl bg-[#faf8f4] dark:bg-slate-900 border-2 border-emerald-950/15 dark:border-emerald-800/30 text-xs leading-relaxed text-slate-800 dark:text-slate-200 space-y-3 max-h-96 overflow-y-auto">
+                  <div className="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 pb-1 border-b border-emerald-900/10 dark:border-emerald-700/20 flex items-center gap-1.5">
+                    <FiZap className="text-amber-500" />
+                    <span>Executive Briefing & Strategic ESG Synthesis</span>
                   </div>
-                  {aiReport.summary}
+                  <MarkdownRenderer content={aiReport.summary} />
                 </div>
               ) : (
                 <div className="p-8 text-center text-slate-500 space-y-3">

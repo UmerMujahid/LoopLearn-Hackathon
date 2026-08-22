@@ -17,6 +17,7 @@ import { aiService, RAGResponse, AgentResponse } from '../../services/aiService'
 import { useAuth } from '../../context/AuthContext';
 import { useFood } from '../../context/FoodContext';
 import { triggerGroqApiKeyModal } from '../common/GroqApiKeyModal';
+import { MarkdownRenderer } from '../common/MarkdownRenderer';
 
 type AITab = 'rag' | 'recommendations' | 'agent';
 
@@ -357,9 +358,7 @@ const AIAssistant: React.FC = () => {
                   }`}
                 >
                   {/* Message content */}
-                  <div className="space-y-1">
-                    {renderFormattedMarkdown(msg.content, msg.role === 'user')}
-                  </div>
+                  <MarkdownRenderer content={msg.content} isUser={msg.role === 'user'} />
 
                   {msg.isError && (
                     <div className="mt-2 pt-2 border-t border-rose-200 dark:border-rose-800/50">
