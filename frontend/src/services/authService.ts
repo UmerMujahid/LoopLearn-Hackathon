@@ -25,8 +25,8 @@ export const authService = {
     return res.data;
   },
 
-  login: async (email: string, password: string): Promise<AuthResponse> => {
-    const res = await apiClient.post<AuthResponse>('/auth/login', { email, password });
+  login: async (email: string, password: string, role?: string): Promise<AuthResponse> => {
+    const res = await apiClient.post<AuthResponse>('/auth/login', { email, password, role });
     return res.data;
   },
 

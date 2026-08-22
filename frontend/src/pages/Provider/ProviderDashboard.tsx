@@ -26,6 +26,8 @@ import {
   FiFilter,
   FiLayers,
   FiCalendar,
+  FiArrowRight,
+  FiAward,
 } from 'react-icons/fi';
 
 type ActiveView = 'listings' | 'claims' | 'create' | 'ai-insights';
@@ -308,118 +310,217 @@ const ProviderDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Interactive KPI Metric Cards with TiltCard */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            icon: <FiCoffee className="text-emerald-700 dark:text-emerald-400" size={24} />,
-            label: 'Active Surplus Listings',
-            value: statsLoading ? '...' : String(activeListings),
-            sub: 'Available for community claims',
-            badgeBg: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300',
-            borderColor: 'border-emerald-950 dark:border-emerald-800',
-          },
-          {
-            icon: <FiCheckCircle className="text-amber-600 dark:text-amber-400" size={24} />,
-            label: 'Surplus Meals Collected',
-            value: statsLoading ? '...' : String(collectedListings),
-            sub: 'Successfully diverted to charities',
-            badgeBg: 'bg-amber-500/10 text-amber-800 dark:text-amber-300',
-            borderColor: 'border-emerald-950 dark:border-emerald-800',
-          },
-          {
-            icon: <FiDroplet className="text-emerald-700 dark:text-emerald-400" size={24} />,
-            label: 'CO\u2082 Emissions Saved',
-            value: statsLoading ? '...' : `${co2Saved} kg`,
-            sub: 'GHG avoided from landfill',
-            badgeBg: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300',
-            borderColor: 'border-emerald-950 dark:border-emerald-800',
-          },
-          {
-            icon: <FiRefreshCw className="text-amber-600 dark:text-amber-400" size={24} />,
-            label: 'Total Waste Reduced',
-            value: statsLoading ? '...' : `${wasteReduced} kg`,
-            sub: 'Solid food waste diverted',
-            badgeBg: 'bg-amber-500/10 text-amber-800 dark:text-amber-300',
-            borderColor: 'border-emerald-950 dark:border-emerald-800',
-          },
-        ].map((kpi, idx) => (
-          <TiltCard key={idx} intensity={8}>
-            <div className={`p-5 rounded-3xl bg-white dark:bg-[#0f1a14] border-2 ${kpi.borderColor} shadow-pop-sm flex flex-col justify-between h-full`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-900/20 flex items-center justify-center">
-                  {kpi.icon}
-                </div>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${kpi.badgeBg}`}>
-                  Live
-                </span>
-              </div>
+      {/* Asymmetric Command Center KPI Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
+        {/* Main Hero Impact Card (Span 7) */}
+        <div className="lg:col-span-7 flex flex-col justify-center">
+          <TiltCard intensity={4} className="h-full">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-800 via-emerald-900 to-slate-800 text-white border-2 border-emerald-400/40 shadow-pop-sm flex flex-col justify-between h-full relative overflow-hidden group">
+              {/* Background ambient lighting */}
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-amber-400/15 rounded-full blur-2xl pointer-events-none" />
+
               <div>
-                <div className="font-display font-black text-3xl text-emerald-950 dark:text-white tracking-tight">
-                  {kpi.value}
+                {/* Header Badge (Pulse removed) */}
+                <div className="flex items-center justify-between gap-2 flex-wrap mb-2.5">
+                  <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-emerald-300">
+                    Kitchen Sustainability Command
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-bold text-amber-300 border border-white/10">
+                    <FiAward size={11} />
+                    <span>Zero-Waste Tier 1</span>
+                  </div>
                 </div>
-                <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-1">{kpi.label}</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{kpi.sub}</div>
+
+                {/* Main Highlight Metric Split */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-1">
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="text-[10px] font-semibold text-emerald-200/80 flex items-center gap-1 mb-0.5">
+                      <FiCheckCircle className="text-emerald-400" size={12} /> Rescued Meals Delivered
+                    </div>
+                    <div className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight">
+                      {statsLoading ? '...' : String(collectedListings)}
+                    </div>
+                    <div className="text-[9px] text-emerald-300/70 mt-0.5 font-medium">
+                      Portions distributed to verified shelters
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="text-[10px] font-semibold text-amber-200/80 flex items-center gap-1 mb-0.5">
+                      <FiDroplet className="text-amber-400" size={12} /> CO₂ Avoided from Landfill
+                    </div>
+                    <div className="font-display font-black text-2xl sm:text-3xl text-amber-300 tracking-tight">
+                      {statsLoading ? '...' : `${co2Saved} kg`}
+                    </div>
+                    <div className="text-[9px] text-amber-200/70 mt-0.5 font-medium">
+                      ~{(co2Saved * 4.2).toFixed(0)} km vehicle emissions offset
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Eco Milestone Bar */}
+              <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap text-[10px]">
+                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                    SDG 12.3
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                    SDG 13.2
+                  </span>
+                  <span className="text-[10px] text-slate-300 font-medium">
+                    Total Solid Waste Diverted: <strong className="text-white">{statsLoading ? '...' : `${wasteReduced} kg`}</strong>
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveView('create')}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300 hover:text-white transition-colors group/btn shrink-0"
+                >
+                  <span>Post New Batch</span>
+                  <FiArrowRight size={11} className="group-hover/btn:translate-x-0.5 transition-transform" />
+                </button>
               </div>
             </div>
           </TiltCard>
-        ))}
+        </div>
+
+        {/* Operations Center (Span 5: 2 Stacked Cards) */}
+        <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3">
+          {/* Card 1: Active Surplus Inventory */}
+          <TiltCard intensity={5}>
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0f1a14] border-2 border-emerald-950 dark:border-emerald-800 shadow-pop-sm flex flex-col justify-between h-full group hover:border-emerald-700 transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-900/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+                  <FiCoffee size={16} />
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20">
+                  Live Batches
+                </span>
+              </div>
+              <div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-display font-black text-2xl text-emerald-950 dark:text-white tracking-tight">
+                    {statsLoading ? '...' : String(activeListings)}
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    batches ready for claim
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                  Active Surplus Inventory
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
+                  <span>Available on community live board</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('listings')}
+                    className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
+                  >
+                    View <FiArrowRight size={10} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </TiltCard>
+
+          {/* Card 2: Community Claims & Verification */}
+          <TiltCard intensity={5}>
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0f1a14] border-2 border-emerald-950 dark:border-emerald-800 shadow-pop-sm flex flex-col justify-between h-full group hover:border-amber-600 transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  <FiRefreshCw size={16} />
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20">
+                  {requests.filter(r => r.status === 'pending').length > 0 ? 'Action Required' : 'All Clear'}
+                </span>
+              </div>
+              <div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-display font-black text-2xl text-emerald-950 dark:text-white tracking-tight">
+                    {requestsLoading ? '...' : String(requests.filter(r => r.status === 'pending').length)}
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    pending approval ({requests.length} total)
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                  Community Shelter Requests
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
+                  <span>Claims pending your confirmation</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('claims')}
+                    className="text-amber-600 dark:text-amber-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
+                  >
+                    Review <FiArrowRight size={10} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </TiltCard>
+        </div>
       </div>
 
-      {/* Main View Navigation Tabs */}
-      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#f4efe6] dark:bg-[#14241a] border-2 border-emerald-950/20 w-fit">
-        <button
-          type="button"
-          onClick={() => setActiveView('listings')}
-          className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
-            activeView === 'listings'
-              ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
-              : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
-          }`}
-        >
-          <FiLayers size={14} /> My Food Inventory ({myListings.length})
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveView('claims')}
-          className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 relative ${
-            activeView === 'claims'
-              ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
-              : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
-          }`}
-        >
-          <FiShoppingBag size={14} /> Incoming Claims
-          {pendingRequests.length > 0 && (
-            <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black border border-emerald-950 flex items-center justify-center">
-              {pendingRequests.length}
-            </span>
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveView('create')}
-          className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
-            activeView === 'create'
-              ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
-              : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
-          }`}
-        >
-          <FiPlus size={14} /> New Surplus Listing
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setActiveView('ai-insights');
-            if (!aiResult) handleGenerateAIRecommendations();
-          }}
-          className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
-            activeView === 'ai-insights'
-              ? 'bg-amber-500 text-slate-950 border-2 border-emerald-950 shadow-pop-sm'
-              : 'text-slate-700 dark:text-slate-300 hover:text-amber-800'
-          }`}
-        >
-          <FiZap size={14} /> AI Waste Strategy
-        </button>
+      {/* Main View Navigation Tabs — Centered */}
+      <div className="flex justify-center w-full my-2 sm:my-3">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#f4efe6] dark:bg-[#14241a] border-2 border-emerald-950/20 w-fit flex-wrap justify-center shadow-soft">
+          <button
+            type="button"
+            onClick={() => setActiveView('listings')}
+            className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
+              activeView === 'listings'
+                ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
+            }`}
+          >
+            <FiLayers size={14} /> My Food Inventory ({myListings.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveView('claims')}
+            className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 relative ${
+              activeView === 'claims'
+                ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
+            }`}
+          >
+            <FiShoppingBag size={14} /> Incoming Claims
+            {pendingRequests.length > 0 && (
+              <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black border border-emerald-950 flex items-center justify-center">
+                {pendingRequests.length}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveView('create')}
+            className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
+              activeView === 'create'
+                ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
+            }`}
+          >
+            <FiPlus size={14} /> New Surplus Listing
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveView('ai-insights');
+              if (!aiResult) handleGenerateAIRecommendations();
+            }}
+            className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
+              activeView === 'ai-insights'
+                ? 'bg-amber-500 text-slate-950 border-2 border-emerald-950 shadow-pop-sm'
+                : 'text-slate-700 dark:text-slate-300 hover:text-amber-800'
+            }`}
+          >
+            <FiZap size={14} /> AI Waste Strategy
+          </button>
+        </div>
       </div>
 
       {/* VIEW 1: My Food Inventory */}

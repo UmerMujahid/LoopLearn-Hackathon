@@ -24,6 +24,7 @@ import {
   FiMail,
   FiPhone,
   FiMapPin,
+  FiArrowRight,
 } from 'react-icons/fi';
 
 type AdminView = 'overview' | 'organizations' | 'listings' | 'users';
@@ -242,115 +243,222 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Interactive KPI Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            icon: <FiBarChart2 className="text-emerald-700 dark:text-emerald-400" size={24} />,
-            label: 'Total Surplus Listings',
-            value: statsLoading ? '...' : String(totalListings),
-            sub: 'Cumulative food batches created',
-            badgeBg: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300',
-            borderColor: 'border-emerald-950 dark:border-emerald-800',
-          },
-          {
-            icon: <FiCheckCircle className="text-amber-600 dark:text-amber-400" size={24} />,
-            label: 'Meals Diverted & Rescued',
-            value: statsLoading ? '...' : String(foodRescued),
-            sub: 'Meals served to hungry citizens',
-            badgeBg: 'bg-amber-500/10 text-amber-800 dark:text-amber-300',
-            borderColor: 'border-emerald-950 dark:border-emerald-800',
-          },
-          {
-            icon: <FiUsers className="text-indigo-600 dark:text-indigo-400" size={24} />,
-            label: 'Verified Community Orgs',
-            value: statsLoading ? '...' : String(activeOrgs),
-            sub: `${pendingOrgsCount} pending verification`,
-            badgeBg: 'bg-indigo-500/10 text-indigo-800 dark:text-indigo-300',
-            borderColor: 'border-emerald-950 dark:border-emerald-800',
-          },
-          {
-            icon: <FiDroplet className="text-emerald-700 dark:text-emerald-400" size={24} />,
-            label: 'Citywide CO\u2082 Saved',
-            value: statsLoading ? '...' : `${totalCo2} kg`,
-            sub: `${totalWaste} kg waste diverted`,
-            badgeBg: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300',
-            borderColor: 'border-emerald-950 dark:border-emerald-800',
-          },
-        ].map((kpi, idx) => (
-          <TiltCard key={idx} intensity={8}>
-            <div className={`p-5 rounded-3xl bg-white dark:bg-[#0f1a14] border-2 ${kpi.borderColor} shadow-pop-sm flex flex-col justify-between h-full`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-900/20 flex items-center justify-center">
-                  {kpi.icon}
-                </div>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${kpi.badgeBg}`}>
-                  Municipal KPI
-                </span>
-              </div>
+      {/* Asymmetric Command Center KPI Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
+        {/* Main Hero Municipal Governance Card (Span 7) */}
+        <div className="lg:col-span-7 flex flex-col justify-center">
+          <TiltCard intensity={4} className="h-full">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-800 via-slate-800 to-emerald-900 text-white border-2 border-indigo-400/40 shadow-pop-sm flex flex-col justify-between h-full relative overflow-hidden group">
+              {/* Ambient lighting effects */}
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-indigo-400/20 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none" />
+
               <div>
-                <div className="font-display font-black text-3xl text-emerald-950 dark:text-white tracking-tight">
-                  {kpi.value}
+                {/* Header Badge (Pulse removed) */}
+                <div className="flex items-center justify-between gap-2 flex-wrap mb-2.5">
+                  <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-indigo-200">
+                    Citywide Zero-Waste Directorate
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-bold text-emerald-200 border border-white/20">
+                    <FiShield size={11} />
+                    <span>Municipal ESG Standard</span>
+                  </div>
                 </div>
-                <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-1">{kpi.label}</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{kpi.sub}</div>
+
+                {/* Main Highlight Metric Split */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-1">
+                  <div className="p-3 rounded-xl bg-black/20 border border-white/15 backdrop-blur-sm">
+                    <div className="text-[10px] font-semibold text-emerald-200 flex items-center gap-1 mb-0.5">
+                      <FiCheckCircle className="text-emerald-300" size={12} /> Total Food Rescued
+                    </div>
+                    <div className="font-display font-black text-2xl sm:text-3xl text-emerald-300 tracking-tight">
+                      {statsLoading ? '...' : String(foodRescued)}
+                    </div>
+                    <div className="text-[9px] text-emerald-100/80 mt-0.5 font-medium">
+                      Meals diverted across all city providers
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-black/20 border border-white/15 backdrop-blur-sm">
+                    <div className="text-[10px] font-semibold text-indigo-200 flex items-center gap-1 mb-0.5">
+                      <FiDroplet className="text-indigo-300" size={12} /> Citywide GHG Mitigated
+                    </div>
+                    <div className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight">
+                      {statsLoading ? '...' : `${totalCo2} kg`}
+                    </div>
+                    <div className="text-[9px] text-indigo-100/80 mt-0.5 font-medium">
+                      {totalWaste} kg landfill solid waste avoided
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Municipal Milestone Bar */}
+              <div className="mt-3 pt-2.5 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap text-[10px]">
+                  <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/30 text-indigo-200 font-bold border border-indigo-400/30">
+                    UN SDG 11.6
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/30 text-emerald-200 font-bold border border-emerald-400/30">
+                    UN SDG 12.3
+                  </span>
+                  <span className="text-[10px] text-slate-200 font-medium">
+                    Verified Nodes: <strong className="text-white">{statsLoading ? '...' : activeOrgs}</strong>
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveView('overview');
+                    handleGenerateAIReport();
+                  }}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 hover:text-white transition-colors group/btn shrink-0"
+                >
+                  <FiZap size={12} />
+                  <span>Generate ESG Report</span>
+                  <FiArrowRight size={11} className="group-hover/btn:translate-x-0.5 transition-transform" />
+                </button>
               </div>
             </div>
           </TiltCard>
-        ))}
+        </div>
+
+        {/* Operations Center (Span 5: 2 Stacked Cards) */}
+        <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3">
+          {/* Card 1: Municipal Food Surplus Flow */}
+          <TiltCard intensity={5}>
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0f1a14] border-2 border-emerald-950 dark:border-emerald-800 shadow-pop-sm flex flex-col justify-between h-full group hover:border-emerald-700 transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-900/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+                  <FiBarChart2 size={16} />
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20">
+                  City Inventory
+                </span>
+              </div>
+              <div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-display font-black text-2xl text-emerald-950 dark:text-white tracking-tight">
+                    {statsLoading ? '...' : String(totalListings)}
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    total batches logged
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                  Municipal Food Flow & Surplus
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
+                  <span>Across registered commercial donors</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('listings')}
+                    className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
+                  >
+                    View <FiArrowRight size={10} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </TiltCard>
+
+          {/* Card 2: Community Network & Verification Queue */}
+          <TiltCard intensity={5}>
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0f1a14] border-2 border-emerald-950 dark:border-emerald-800 shadow-pop-sm flex flex-col justify-between h-full group hover:border-indigo-600 transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <FiUsers size={16} />
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${
+                  pendingOrgsCount > 0
+                    ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30'
+                    : 'bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 border border-indigo-500/20'
+                }`}>
+                  {pendingOrgsCount > 0 ? `${pendingOrgsCount} Pending` : 'All Verified'}
+                </span>
+              </div>
+              <div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-display font-black text-2xl text-emerald-950 dark:text-white tracking-tight">
+                    {statsLoading ? '...' : String(activeOrgs)}
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    charities ({pendingOrgsCount} pending)
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                  Community Partner Network
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
+                  <span>Municipal compliance & vetting</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('organizations')}
+                    className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-0.5 text-[10px]"
+                  >
+                    Queue <FiArrowRight size={10} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </TiltCard>
+        </div>
       </div>
 
-      {/* Main View Navigation Tabs */}
-      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#f4efe6] dark:bg-[#14241a] border-2 border-emerald-950/20 w-fit flex-wrap">
-        <button
-          type="button"
-          onClick={() => setActiveView('overview')}
-          className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
-            activeView === 'overview'
-              ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
-              : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
-          }`}
-        >
-          <FiBarChart2 size={14} /> Platform SDGs & AI Summary
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveView('organizations')}
-          className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 relative ${
-            activeView === 'organizations'
-              ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
-              : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
-          }`}
-        >
-          <FiCheckSquare size={14} /> Org Verifications ({allOrgs.length})
-          {pendingOrgsCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black border border-emerald-950 flex items-center justify-center">
-              {pendingOrgsCount}
-            </span>
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveView('listings')}
-          className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
-            activeView === 'listings'
-              ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
-              : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
-          }`}
-        >
-          <FiLayers size={14} /> Surplus Oversight ({allListings.length})
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveView('users')}
-          className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
-            activeView === 'users'
-              ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
-              : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
-          }`}
-        >
-          <FiUsers size={14} /> User Directory ({allUsers.length})
-        </button>
+      {/* Main View Navigation Tabs — Centered */}
+      <div className="flex justify-center w-full my-2 sm:my-3">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#f4efe6] dark:bg-[#14241a] border-2 border-emerald-950/20 w-fit flex-wrap justify-center shadow-soft">
+          <button
+            type="button"
+            onClick={() => setActiveView('overview')}
+            className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
+              activeView === 'overview'
+                ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
+            }`}
+          >
+            <FiBarChart2 size={14} /> Platform SDGs & AI Summary
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveView('organizations')}
+            className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 relative ${
+              activeView === 'organizations'
+                ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
+            }`}
+          >
+            <FiCheckSquare size={14} /> Org Verifications ({allOrgs.length})
+            {pendingOrgsCount > 0 && (
+              <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black border border-emerald-950 flex items-center justify-center">
+                {pendingOrgsCount}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveView('listings')}
+            className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
+              activeView === 'listings'
+                ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
+            }`}
+          >
+            <FiLayers size={14} /> Surplus Oversight ({allListings.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveView('users')}
+            className={`px-4 py-2 rounded-xl font-display font-black text-xs transition-all flex items-center gap-2 ${
+              activeView === 'users'
+                ? 'bg-emerald-700 text-white border-2 border-emerald-950 shadow-pop-sm'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-900'
+            }`}
+          >
+            <FiUsers size={14} /> User Directory ({allUsers.length})
+          </button>
+        </div>
       </div>
 
       {/* VIEW 1: Overview & UN SDG Impact + AI ESG Report */}

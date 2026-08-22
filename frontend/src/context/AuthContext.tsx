@@ -7,7 +7,7 @@ interface AuthContextType {
   role: UserRole;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, portalRole?: UserRole) => Promise<User>;
   register: (data: {
     name: string;
     email: string;
@@ -26,7 +26,7 @@ const AuthContext = createContext<AuthContextType>({
   role: 'provider',
   isAuthenticated: false,
   isLoading: false,
-  login: async () => {},
+  login: async () => { throw new Error('AuthContext not initialized'); },
   register: async () => {},
   refreshProfile: async () => {},
   logout: () => {},
@@ -72,10 +72,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, portalRole?: UserRole): Promise<User> => {
     setIsLoading(true);
     try {
-      const { token, user: rawUser } = await authService.login(email, password);
+      const { token, user: rawUser } = await authService.login(email, password, portalRole);
+      
+      // Strict role verification check on the client as well
+      if (portalRole && rawUser.role !== portalRole) {
+        const roleDisplayNames: Record<string, string> = {
+          provider: 'Food Donor',
+          organization: 'Community Organization',
+          admin: 'Administrator',
+        };
+        const actualLabel = roleDisplayNames[rawUser.role] || rawUser.role;
+        const requestedLabel = roleDisplayNames[portalRole] || portalRole;
+        throw new Error(`Access Denied: This account is registered as a ${actualLabel}. Please log in through the ${actualLabel} portal.`);
+      }
+
       const user: User = { ...rawUser, avatar: avatarForRole(rawUser.role) };
 
       localStorage.setItem('foodloop_token', token);
@@ -84,6 +97,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setCurrentUser(user);
       setRole(user.role);
       setIsAuthenticated(true);
+      return user;
     } finally {
       setIsLoading(false);
     }

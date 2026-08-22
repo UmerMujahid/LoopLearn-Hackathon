@@ -59,7 +59,7 @@ const register = async (req, res) => {
 // @access  Public
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required." });
@@ -73,6 +73,23 @@ const login = async (req, res) => {
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid email or password." });
+        }
+
+        // Enforce role-specific portal restriction if a portal role was specified
+        if (role && user.role !== role) {
+            const roleDisplayNames = {
+                provider: "Food Donor",
+                organization: "Community Organization",
+                admin: "Administrator"
+            };
+            const expectedPortal = roleDisplayNames[role] || role;
+            const actualRole = roleDisplayNames[user.role] || user.role;
+
+            return res.status(403).json({
+                message: `Access denied. This is the ${expectedPortal} portal, but your account is registered as a ${actualRole}. Please switch to the ${actualRole} portal.`,
+                actualRole: user.role,
+                expectedRole: role
+            });
         }
 
         const token = user.getAccessToken();
